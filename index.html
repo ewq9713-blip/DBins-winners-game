@@ -922,6 +922,7 @@ body{
 <div class="modal-overlay" id="live-modal">
   <div class="modal-sheet">
     <p class="modal-title">🔥 실시간 순위</p>
+    <p class="field-label" style="margin:-8px 0 12px;">매주 월요일 초기화 · 상위 30명까지 표시</p>
     <div id="live-lb-body" class="leaderboard-list" style="max-height:50vh;">
       <div class="lb-loading">불러오는 중...</div>
     </div>
@@ -983,11 +984,21 @@ function sanitizeKeyForFirebase(name){
   return (name||'player').replace(/[.#$\[\]\/]/g, '_').slice(0,60);
 }
 
+// A fresh scoreboard "bucket" every 7 days - no cleanup job needed, since
+// once the week rolls over, new scores simply start landing in a brand new
+// (empty) path and nothing ever reads the old week's path again.
+var WEEK_EPOCH = Date.UTC(2025, 0, 6); // an arbitrary Monday reference point
+function getCurrentWeekKey(){
+  var diffDays = Math.floor((Date.now() - WEEK_EPOCH) / 86400000);
+  var weekNum = Math.floor(diffDays / 7);
+  return 'wk' + weekNum;
+}
+
 function submitScoreOnline(){
   if(!fbEnabled) return;
   try{
     var key = sanitizeKeyForFirebase(state.name);
-    var ref = fbDb.ref('scores/'+key);
+    var ref = fbDb.ref('scores/'+getCurrentWeekKey()+'/'+key);
     ref.once('value').then(function(snap){
       var existing = snap.val();
       if(!existing || state.score > existing.score){
@@ -1001,6 +1012,8 @@ function submitScoreOnline(){
     }).catch(function(){});
   }catch(e){}
 }
+
+var LEADERBOARD_LIMIT = 30;
 
 function renderLiveLeaderboard(recordsObj){
   var body = document.getElementById('live-lb-body');
@@ -1016,9 +1029,11 @@ function renderLiveLeaderboard(recordsObj){
     if(b.score !== a.score) return b.score - a.score;
     return (a.updatedAt||0) - (b.updatedAt||0);
   });
+  var totalCount = records.length;
+  records = records.slice(0, LEADERBOARD_LIMIT);
   body.innerHTML = '';
   if(records.length === 0){
-    body.innerHTML = '<div class="lb-empty">아직 등록된 기록이 없습니다.<br>가장 먼저 도전해보세요!</div>';
+    body.innerHTML = '<div class="lb-empty">이번 주 등록된 기록이 없습니다.<br>가장 먼저 도전해보세요!</div>';
     return;
   }
   records.forEach(function(r, idx){
@@ -1033,6 +1048,13 @@ function renderLiveLeaderboard(recordsObj){
       '<div class="lb-score">'+r.score+'점</div>';
     body.appendChild(row);
   });
+  if(totalCount > LEADERBOARD_LIMIT){
+    var more = document.createElement('div');
+    more.className = 'lb-empty';
+    more.style.padding = '8px 0 0';
+    more.textContent = '외 '+(totalCount-LEADERBOARD_LIMIT)+'명 더 있음 (상위 '+LEADERBOARD_LIMIT+'명까지만 표시)';
+    body.appendChild(more);
+  }
 }
 
 function openLiveLeaderboard(){
@@ -1042,7 +1064,7 @@ function openLiveLeaderboard(){
   body.innerHTML = '<div class="lb-loading">불러오는 중...</div>';
   if(!fbEnabled || !fbDb) return;
   try{
-    fbListenerRef = fbDb.ref('scores');
+    fbListenerRef = fbDb.ref('scores/'+getCurrentWeekKey());
     fbListenerRef.on('value', function(snap){
       renderLiveLeaderboard(snap.val());
     }, function(){
@@ -2167,7 +2189,7 @@ function escapeHtml(s){
   });
 }
 
-var GAME_URL = 'https://ewq9713-blip.github.io/';
+var GAME_URL = 'https://ewq9713-blip.github.io/DBins-winners-game/';
 
 function buildShareText(){
   var c = CHARACTERS.filter(function(x){return x.id===state.character;})[0];
@@ -2185,7 +2207,9 @@ async function shareResult(){
   var text = buildShareText();
   if(navigator.share){
     try{
-      await navigator.share({ title:'위너스지점 청약서 받기 결과', text:text });
+      // no separate title/url fields - some share targets render those as
+      // extra lines of their own, which was leaving stray blank space
+      await navigator.share({ text:text });
       return;
     }catch(e){ /* user cancelled or share failed - fall through to clipboard */ }
   }
