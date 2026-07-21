@@ -239,6 +239,17 @@ body{
   animation:countdownPulse .55s ease;
 }
 .countdown-sub{color:var(--muted);font-size:14px;margin-top:6px;}
+.countdown-audio-tip{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+  margin-top:22px;
+  padding:10px 20px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  max-width:280px;
+}
 
 /* ---------- Game Screen ---------- */
 #screen-game{padding:16px 14px calc(14px + env(safe-area-inset-bottom));}
@@ -651,27 +662,27 @@ body{
   display:flex;align-items:center;gap:10px;
   padding:10px 12px;
   border-radius:var(--radius-sm);
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(22,35,62,0.05);
+  border:1px solid rgba(22,35,62,0.12);
   font-size:13.5px;
 }
 .lb-row.me{
-  background:rgba(255,209,102,0.14);
-  border-color:var(--gold);
+  background:rgba(255,209,102,0.3);
+  border-color:#C9861A;
 }
 .lb-rank{
   font-family:var(--font-display);
   width:26px;text-align:center;
-  color:var(--muted);
+  color:#8A93A6;
   flex-shrink:0;
 }
-.lb-row.rank-1 .lb-rank{color:#FFD700;}
-.lb-row.rank-2 .lb-rank{color:#D8D8D8;}
-.lb-row.rank-3 .lb-rank{color:#E0A458;}
-.lb-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.lb-char{font-size:11px;color:var(--muted);}
-.lb-score{font-family:var(--font-display);color:var(--gold);flex-shrink:0;}
-.lb-empty, .lb-loading{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;}
+.lb-row.rank-1 .lb-rank{color:#C9971A;}
+.lb-row.rank-2 .lb-rank{color:#8A8F98;}
+.lb-row.rank-3 .lb-rank{color:#B8752E;}
+.lb-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);}
+.lb-char{font-size:11px;color:#8A93A6;}
+.lb-score{font-family:var(--font-display);color:var(--success);flex-shrink:0;}
+.lb-empty, .lb-loading{color:#8A93A6;font-size:13px;text-align:center;padding:20px 0;}
 
 /* ---------- Legend Modal ---------- */
 .modal-overlay{
@@ -834,12 +845,14 @@ body{
   <div class="char-list" id="char-list"></div>
 
   <button class="primary-btn" id="btn-start" disabled>게임 시작</button>
+  <button class="ghost-btn hidden" id="btn-live-rank">🔥 실시간 순위 보기</button>
 </section>
 
 <!-- ============ COUNTDOWN SCREEN ============ -->
 <section class="screen" id="screen-countdown">
   <div class="countdown-num" id="countdown-num">3</div>
   <div class="countdown-sub">서류를 받을 준비!</div>
+  <div class="countdown-audio-tip">🎧 배경음·효과음을 들으시려면<br>이어폰을 착용하거나 무음 모드를 해제해주세요</div>
 </section>
 
 <!-- ============ GAME SCREEN ============ -->
@@ -905,6 +918,23 @@ body{
   </div>
 </div>
 
+<!-- ============ LIVE LEADERBOARD MODAL ============ -->
+<div class="modal-overlay" id="live-modal">
+  <div class="modal-sheet">
+    <p class="modal-title">🔥 실시간 순위</p>
+    <div id="live-lb-body" class="leaderboard-list" style="max-height:50vh;">
+      <div class="lb-loading">불러오는 중...</div>
+    </div>
+    <button class="modal-close" id="btn-close-live">닫기</button>
+  </div>
+</div>
+
+<!-- Firebase (optional) - powers the real-time shared leaderboard.
+     Loading these from the CDN never blocks or breaks the game itself;
+     see FIREBASE_CONFIG near the top of the main script below. -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <script>
 (function(){
 "use strict";
@@ -913,6 +943,122 @@ body{
    CONFIG
 ======================================================== */
 var GAME_DURATION = 60; // seconds
+
+/* ========================================================
+   REAL-TIME SHARED LEADERBOARD (optional - Firebase Realtime DB)
+   GitHub Pages is static hosting with no backend of its own, so a truly
+   live cross-device leaderboard needs an external real-time data store.
+   Firebase's free tier is built for exactly this.
+
+   To turn this on: create a free project at https://console.firebase.google.com
+   -> Build > Realtime Database > Create Database (test mode is fine for an
+   internal team game) -> Project settings > General > "Your apps" > copy
+   the config values below. Takes about 5 minutes. Until you fill these in,
+   the game works exactly as before and the live-leaderboard button stays
+   hidden - nothing breaks.
+======================================================== */
+var FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID"
+};
+var fbEnabled = false;
+var fbDb = null;
+var fbListenerRef = null;
+
+function initFirebase(){
+  if(FIREBASE_CONFIG.apiKey === "YOUR_API_KEY") return; // not configured yet
+  if(typeof firebase === 'undefined') return; // CDN script didn't load (offline etc.)
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbDb = firebase.database();
+    fbEnabled = true;
+    var btn = document.getElementById('btn-live-rank');
+    if(btn) btn.classList.remove('hidden');
+  }catch(e){ fbEnabled = false; }
+}
+initFirebase();
+
+function sanitizeKeyForFirebase(name){
+  return (name||'player').replace(/[.#$\[\]\/]/g, '_').slice(0,60);
+}
+
+function submitScoreOnline(){
+  if(!fbEnabled) return;
+  try{
+    var key = sanitizeKeyForFirebase(state.name);
+    var ref = fbDb.ref('scores/'+key);
+    ref.once('value').then(function(snap){
+      var existing = snap.val();
+      if(!existing || state.score > existing.score){
+        ref.set({
+          name: state.name,
+          character: state.character,
+          score: state.score,
+          updatedAt: Date.now()
+        });
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+
+function renderLiveLeaderboard(recordsObj){
+  var body = document.getElementById('live-lb-body');
+  if(!body) return;
+  var records = [];
+  if(recordsObj){
+    Object.keys(recordsObj).forEach(function(k){
+      var r = recordsObj[k];
+      if(r && typeof r.score === 'number') records.push(r);
+    });
+  }
+  records.sort(function(a,b){
+    if(b.score !== a.score) return b.score - a.score;
+    return (a.updatedAt||0) - (b.updatedAt||0);
+  });
+  body.innerHTML = '';
+  if(records.length === 0){
+    body.innerHTML = '<div class="lb-empty">아직 등록된 기록이 없습니다.<br>가장 먼저 도전해보세요!</div>';
+    return;
+  }
+  records.forEach(function(r, idx){
+    var rank = idx+1;
+    var isMe = r.name === state.name;
+    var c = CHARACTERS.filter(function(x){return x.id===r.character;})[0] || CHARACTERS[0];
+    var row = document.createElement('div');
+    row.className = 'lb-row'+(isMe?' me':'')+(rank<=3?' rank-'+rank:'');
+    row.innerHTML =
+      '<div class="lb-rank">'+rank+'</div>' +
+      '<div class="lb-name">'+escapeHtml(r.name)+' <span class="lb-char">('+c.name+')</span></div>' +
+      '<div class="lb-score">'+r.score+'점</div>';
+    body.appendChild(row);
+  });
+}
+
+function openLiveLeaderboard(){
+  var modal = document.getElementById('live-modal');
+  modal.classList.add('open');
+  var body = document.getElementById('live-lb-body');
+  body.innerHTML = '<div class="lb-loading">불러오는 중...</div>';
+  if(!fbEnabled || !fbDb) return;
+  try{
+    fbListenerRef = fbDb.ref('scores');
+    fbListenerRef.on('value', function(snap){
+      renderLiveLeaderboard(snap.val());
+    }, function(){
+      body.innerHTML = '<div class="lb-empty">순위를 불러오지 못했습니다.</div>';
+    });
+  }catch(e){
+    body.innerHTML = '<div class="lb-empty">순위를 불러오지 못했습니다.</div>';
+  }
+}
+function closeLiveLeaderboard(){
+  document.getElementById('live-modal').classList.remove('open');
+  if(fbListenerRef){
+    try{ fbListenerRef.off('value'); }catch(e){}
+    fbListenerRef = null;
+  }
+}
 
 var ITEM_TYPES = [
   { id:'child',        label:['자녀보험','청약서'], score:200,  weight:3,  speed:250, cls:'pos' },
@@ -1462,6 +1608,10 @@ $('btn-legend').addEventListener('click', function(){ $('legend-modal').classLis
 $('btn-close-legend').addEventListener('click', function(){ $('legend-modal').classList.remove('open'); });
 $('legend-modal').addEventListener('click', function(e){ if(e.target.id==='legend-modal') $('legend-modal').classList.remove('open'); });
 
+$('btn-live-rank').addEventListener('click', function(){ sfxClick(); openLiveLeaderboard(); });
+$('btn-close-live').addEventListener('click', function(){ sfxClick(); closeLiveLeaderboard(); });
+$('live-modal').addEventListener('click', function(e){ if(e.target.id==='live-modal') closeLiveLeaderboard(); });
+
 /* ========================================================
    GAME START / COUNTDOWN
 ======================================================== */
@@ -2007,6 +2157,8 @@ function endGame(){
 
   var c = CHARACTERS.filter(function(x){return x.id===state.character;})[0];
   $('result-char').innerHTML = '<div class="mini-badge">'+charSVG(c.id)+'</div><div>'+c.name+' · '+escapeHtml(state.name)+'</div>';
+
+  submitScoreOnline();
 }
 
 function escapeHtml(s){
@@ -2015,26 +2167,30 @@ function escapeHtml(s){
   });
 }
 
+var GAME_URL = 'https://ewq9713-blip.github.io/';
+
 function buildShareText(){
   var c = CHARACTERS.filter(function(x){return x.id===state.character;})[0];
   return '🏢 DB손해보험 전략사업부문 광화문사업단\n' +
-    '📄 FC 계약 받아 소득 올리기\n\n' +
-    (state.name || '플레이어') + ' (' + (c?c.name:'') + ')\n' +
-    '최종 점수: ' + state.score + '점\n\n' +
-    '나도 도전하기 👉 이 링크를 눌러보세요!';
+    '📄 FC 계약 받아 소득 올리기\n' +
+    '━━━━━━━━━━━━━\n' +
+    '🙋 ' + (state.name || '플레이어') + ' (' + (c?c.name:'') + ')\n' +
+    '🏆 최종 점수 : ' + state.score + '점 🏆\n' +
+    '━━━━━━━━━━━━━\n\n' +
+    '나도 도전하기 👉 이 링크를 눌러보세요!\n' +
+    GAME_URL;
 }
 
 async function shareResult(){
   var text = buildShareText();
-  var url = (typeof location!=='undefined' && location.href) ? location.href : '';
   if(navigator.share){
     try{
-      await navigator.share({ title:'위너스지점 청약서 받기 결과', text:text, url:url });
+      await navigator.share({ title:'위너스지점 청약서 받기 결과', text:text });
       return;
     }catch(e){ /* user cancelled or share failed - fall through to clipboard */ }
   }
   try{
-    await navigator.clipboard.writeText(text + (url ? ('\n'+url) : ''));
+    await navigator.clipboard.writeText(text);
     var btn = $('btn-share');
     var original = btn.textContent;
     btn.textContent = '✅ 복사 완료! 카톡방에 붙여넣어 주세요';
