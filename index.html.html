@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- ▼ 카카오톡 강제 외부 브라우저 전환 스크립트 시작 ▼ -->
+<script>
+  (function(){
+    if (navigator.userAgent.toLowerCase().indexOf('kakaotalk') === -1) return;
+    var kakaoUrl = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    try {
+      // If this page is embedded in an iframe (e.g. Claude's artifact viewer),
+      // redirecting the iframe itself does nothing useful - we need the actual
+      // top-level tab that KakaoTalk's browser is showing. This throws if the
+      // parent frame is a different origin, which is why it's wrapped below.
+      if (window.top && window.top !== window.self) {
+        window.top.location.href = kakaoUrl;
+      } else {
+        location.href = kakaoUrl;
+      }
+    } catch(e) {
+      // Cross-origin parent - can't reach it, so at least try this frame.
+      try { location.href = kakaoUrl; } catch(e2) {}
+    }
+  })();
+</script>
+<!-- ▲ 스크립트 끝 ▲ -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B4023">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FC 계약 받기">
+<title>FC 계약 받아 소득 올리기 | DB손해보험 전략사업부문 광화문사업단</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* DB손해보험 그린 아이덴티티 기반 - 밝고 화사한 팔레트 */
+  --navy-deep:#0B4023;      /* 짙은 포레스트 그린 (베이스) */
+  --navy-mid:#1D7A3C;       /* DB Green Gradient 진한 톤 근접 (R0 G149 B89) */
+  --sky-dusk:#66C24C;       /* DB Green Gradient 밝은 톤 근접 (R141 G198 B63) - 화사한 포인트 */
+  --amber:#F47920;          /* DB Red Gradient 밝은 톤 */
+  --amber-deep:#C9252C;     /* DB Red Gradient 진한 톤 */
+  --gold:#FFD166;
+  --paper:#FBF7EE;
+  --ink:#16233E;
+  --danger:#E5484D;
+  --warn:#F0B429;
+  --info:#3B7DD8;
+  --success:#00854A;        /* DB Green */
+  --muted:#C4E0B8;
+  --white:#FFFFFF;
+  --radius-lg:26px;
+  --radius-md:18px;
+  --radius-sm:10px;
+  --font-display:'Jua','Apple SD Gothic Neo',sans-serif;
+  --font-body:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+body{
+  min-height:100dvh;
+  background:radial-gradient(circle at 50% -10%, var(--sky-dusk) 0%, var(--navy-mid) 45%, var(--navy-deep) 100%);
+  font-family:var(--font-body);
+  color:var(--white);
+  display:flex;
+  justify-content:center;
+  overflow-x:hidden;
+}
+#app{
+  width:100%;
+  max-width:480px;
+  min-height:100dvh;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 0 70px rgba(0,0,0,0.55);
+  background:transparent;
+}
+#skyline{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:180px;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.55;
+}
+.screen{
+  display:none;
+  flex-direction:column;
+  flex:1;
+  position:relative;
+  z-index:1;
+  padding:22px 20px calc(18px + env(safe-area-inset-bottom));
+}
+.screen.active{display:flex;}
+
+/* ---------- Start Screen ---------- */
+.brand-eyebrow{
+  font-size:12px;
+  letter-spacing:2px;
+  color:var(--gold);
+  text-align:center;
+  opacity:0.9;
+  margin-bottom:4px;
+}
+.title{
+  font-family:var(--font-display);
+  font-size:30px;
+  line-height:1.35;
+  text-align:center;
+  color:var(--white);
+  text-shadow:0 2px 0 rgba(0,0,0,0.35), 0 0 24px rgba(245,166,35,0.25);
+  margin:0 0 4px;
+}
+.title em{
+  font-style:normal;
+  color:var(--gold);
+}
+.subtitle{
+  text-align:center;
+  color:var(--muted);
+  font-size:13.5px;
+  margin:0 0 18px;
+}
+.info-btn{
+  position:absolute;
+  top:22px; right:20px;
+  width:32px; height:32px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.18);
+  color:var(--gold);
+  font-family:var(--font-display);
+  font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  z-index:3;
+}
+.field-label{
+  font-size:13px;
+  color:var(--muted);
+  margin:0 0 8px 4px;
+}
+.name-input{
+  width:100%;
+  padding:14px 18px;
+  border-radius:999px;
+  border:1.5px solid rgba(255,255,255,0.16);
+  background:rgba(255,255,255,0.07);
+  color:var(--white);
+  font-family:var(--font-body);
+  font-size:16px;
+  outline:none;
+  margin-bottom:20px;
+}
+.name-input::placeholder{color:rgba(255,255,255,0.35);}
+.name-input:focus{border-color:var(--gold);background:rgba(255,255,255,0.11);}
+
+.char-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:18px;
+}
+.char-card{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  border-radius:var(--radius-md);
+  border:2px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.05);
+  cursor:pointer;
+  transition:border-color .15s, background .15s, transform .1s;
+  animation:cardEnter .35s ease both;
+}
+.char-card:active{transform:scale(0.98);}
+.char-card.selected{
+  border-color:var(--gold);
+  background:rgba(255,209,102,0.12);
+  box-shadow:0 0 0 1px rgba(255,209,102,0.3) inset;
+}
+.char-badge{width:58px;height:58px;flex-shrink:0;border-radius:50%;overflow:hidden;background:rgba(255,255,255,0.06);}
+.char-badge svg{width:100%;height:100%;display:block;}
+.char-info{flex:1;min-width:0;}
+.char-name{font-size:15px;font-weight:700;color:var(--white);margin:0 0 2px;}
+.char-tagline{font-size:12px;color:var(--muted);margin:0;line-height:1.4;}
+.char-check{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.25);
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:transparent;
+}
+.char-card.selected .char-check{
+  background:var(--gold);border-color:var(--gold);color:var(--navy-deep);
+}
+
+.primary-btn{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(180deg,var(--amber),var(--amber-deep));
+  color:var(--navy-deep);
+  font-family:var(--font-display);
+  font-size:18px;
+  letter-spacing:1px;
+  box-shadow:0 6px 0 rgba(150,90,10,0.55), 0 10px 20px rgba(245,166,35,0.25);
+  cursor:pointer;
+  transition:transform .08s, box-shadow .08s, opacity .15s;
+}
+.primary-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(150,90,10,0.55);}
+.primary-btn:disabled{opacity:0.35;box-shadow:none;pointer-events:none;}
+
+.ghost-btn{
+  width:100%;
+  margin-top:12px;
+  padding:12px;
+  border:1.5px solid rgba(255,255,255,0.18);
+  border-radius:999px;
+  background:transparent;
+  color:var(--muted);
+  font-family:var(--font-body);
+  font-size:13.5px;
+  cursor:pointer;
+}
+.ghost-btn:active{background:rgba(255,255,255,0.06);}
+
+/* ---------- Countdown ---------- */
+#screen-countdown{align-items:center;justify-content:center;}
+.countdown-num{
+  font-family:var(--font-display);
+  font-size:110px;
+  color:var(--gold);
+  text-shadow:0 0 40px rgba(255,209,102,0.5);
+  animation:countdownPulse .55s ease;
+}
+.countdown-sub{color:var(--muted);font-size:14px;margin-top:6px;}
+
+/* ---------- Game Screen ---------- */
+#screen-game{padding:16px 14px calc(14px + env(safe-area-inset-bottom));}
+.hud{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:10px;
+}
+.hud-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(0,0,0,0.28);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:999px;
+  padding:8px 14px;
+  font-family:var(--font-display);
+  font-size:15px;
+}
+.hud-pill.timer{color:var(--white);}
+.hud-pill.timer.urgent{color:var(--danger);animation:pulseGold 0.6s infinite;}
+.hud-pill.score{color:var(--gold);}
+.hud-pill.settings-btn{
+  padding:8px 12px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(0,0,0,0.28);
+  color:var(--white);
+  cursor:pointer;
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1;
+}
+.hud-pill.settings-btn:active{background:rgba(0,0,0,0.45);}
+.hud-invincible{
+  font-size:11px;color:var(--gold);
+  font-family:var(--font-body);
+  min-height:14px;
+  text-align:center;
+  margin-bottom:4px;
+}
+.hud-invincible.warn-text{
+  color:var(--danger);
+  font-weight:700;
+}
+.hud-fever{
+  text-align:center;
+  font-family:var(--font-display);
+  font-size:15px;
+  color:#3A2100;
+  background:linear-gradient(90deg, #FFD166, #F47920, #FFD166);
+  background-size:200% 100%;
+  border-radius:999px;
+  padding:6px 10px;
+  margin-bottom:6px;
+  box-shadow:0 3px 10px rgba(244,121,32,0.5);
+  animation:feverGlow 0.7s ease-in-out infinite, feverSweep 1.4s linear infinite;
+}
+.pause-layer{
+  position:absolute;inset:0;
+  z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(11,64,35,0.72);
+  backdrop-filter:blur(2px);
+}
+.pause-card{
+  width:86%;
+  max-width:320px;
+  background:var(--navy-mid);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:var(--radius-lg);
+  padding:22px 20px;
+}
+.volume-row{
+  display:flex;align-items:center;gap:10px;
+}
+.mute-btn{
+  width:34px;height:34px;flex-shrink:0;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.06);
+  color:var(--white);
+  font-size:15px;
+  cursor:pointer;
+}
+.volume-row input[type="range"]{
+  flex:1;
+  -webkit-appearance:none;
+  appearance:none;
+  height:6px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.18);
+  outline:none;
+}
+.volume-row input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--gold);
+  cursor:pointer;
+  border:2px solid rgba(11,64,35,0.6);
+}
+.volume-row input[type="range"]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--gold);
+  cursor:pointer;
+  border:2px solid rgba(11,64,35,0.6);
+}
+.game-area{
+  position:relative;
+  flex:1;
+  min-height:380px;
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(102,194,76,0.35) 0%, rgba(29,122,60,0.75) 75%, rgba(11,64,35,0.92) 100%);
+  border:1px solid rgba(255,255,255,0.08);
+  touch-action:none;
+  transition:background 0.6s ease, box-shadow 0.6s ease;
+}
+.game-area.fever{
+  background:
+    radial-gradient(ellipse 90% 65% at 50% 105%, rgba(255,244,180,0.85) 0%, rgba(255,176,50,0.72) 25%, rgba(232,90,20,0.62) 50%, rgba(120,20,8,0.78) 75%, rgba(40,8,4,0.92) 100%);
+  box-shadow:0 0 0 3px rgba(255,180,60,0.75) inset, 0 0 34px rgba(255,90,20,0.65);
+}
+.game-area.fever::before{
+  content:"";
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 90% 65% at 50% 105%, rgba(255,244,180,0.55) 0%, rgba(255,150,40,0.4) 35%, transparent 70%);
+  pointer-events:none;
+  will-change:opacity;
+  animation:fireFlicker 0.6s ease-in-out infinite;
+}
+.flame-particle{
+  position:absolute;
+  bottom:0;
+  font-size:18px;
+  line-height:1;
+  pointer-events:none;
+  z-index:3;
+  will-change:transform,opacity;
+  animation:flameRise 1.1s ease-out forwards;
+}
+.game-area::after{
+  content:"";
+  position:absolute;inset:0;
+  background-image:
+    radial-gradient(70px 22px at 18% 5%, rgba(255,255,255,0.14), transparent 70%),
+    radial-gradient(70px 22px at 52% 4%, rgba(255,255,255,0.12), transparent 70%),
+    radial-gradient(70px 22px at 84% 6%, rgba(255,255,255,0.12), transparent 70%);
+  pointer-events:none;
+}
+.flash-overlay{
+  position:absolute;inset:0;z-index:5;pointer-events:none;
+  opacity:0;
+}
+.flash-overlay.danger{animation:flashDanger .35s ease;}
+.flash-overlay.gold{animation:flashGold .45s ease;}
+
+.falling-item{
+  position:absolute;
+  width:72px;
+  min-height:81px;
+  border-radius:8px 8px 8px 2px;
+  background:var(--paper);
+  color:var(--ink);
+  font-size:10px;
+  line-height:1.25;
+  font-weight:800;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:6px 4px 22px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  will-change:transform;
+}
+.falling-item .fi-icon{
+  width:29px;height:29px;
+  margin-bottom:3px;
+  flex-shrink:0;
+}
+.falling-item .fi-icon svg{width:100%;height:100%;display:block;}
+.falling-item .fi-label{
+  margin-bottom:2px;
+}
+.falling-item::before{
+  content:"";
+  position:absolute;
+  top:0;right:0;
+  width:0;height:0;
+  border-style:solid;
+  border-width:0 12px 12px 0;
+  border-color:transparent rgba(0,0,0,0.14) transparent transparent;
+}
+.falling-item.complaint-paper{
+  background:#F6D2CE;
+  color:#7A1F1F;
+}
+.falling-item.complaint-paper::before{
+  border-color:transparent rgba(122,31,31,0.22) transparent transparent;
+}
+.falling-wrap{
+  position:absolute;
+}
+.paper-back{
+  position:absolute;
+  top:4px; left:-4px;
+  width:48px; height:54px;
+  background:#FFF3C4;
+  border:1px solid rgba(0,0,0,0.18);
+  border-radius:8px 8px 8px 2px;
+  transform:rotate(11deg);
+  box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+.falling-item.paper-stack{
+  position:absolute;
+  top:0; left:0;
+  transform:rotate(-4deg);
+  width:62px;
+  min-height:70px;
+  background:#FFF9DC;
+  font-size:9px;
+  padding:5px 3px 19px;
+}
+.falling-item.paper-stack .fi-icon{
+  width:25px;height:25px;
+}
+.falling-item .pt-badge{
+  position:absolute;
+  bottom:4px;left:50%;
+  transform:translateX(-50%);
+  font-family:var(--font-display);
+  font-size:12px;
+  padding:1px 8px;
+  border-radius:999px;
+  color:var(--white);
+}
+.falling-item.pos .pt-badge{background:var(--success);}
+.falling-item.neg .pt-badge{background:var(--danger);}
+.falling-item.stripe-red,
+.falling-item.stripe-yellow,
+.falling-item.stripe-blue{
+  width:66px;
+  min-height:78px;
+  padding-left:13px;
+  font-size:9.5px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.4);
+  background-repeat:repeat-y, no-repeat;
+  background-size:9px 11px, 100% 100%;
+  background-position:0px 5px, 0 0;
+}
+.falling-item.stripe-red .fi-icon,
+.falling-item.stripe-yellow .fi-icon,
+.falling-item.stripe-blue .fi-icon{
+  width:27px;height:27px;
+}
+.falling-item.stripe-red{background-image:radial-gradient(circle 2.3px, #FFFFFF 2.3px, transparent 2.4px), linear-gradient(155deg, #EB5B60, #C9252C); color:#FFFFFF;}
+.falling-item.stripe-yellow{background-image:radial-gradient(circle 2.3px, #FFFFFF 2.3px, transparent 2.4px), linear-gradient(155deg, #FFD666, #E8A317); color:#4A3300;}
+.falling-item.stripe-blue{background-image:radial-gradient(circle 2.3px, #FFFFFF 2.3px, transparent 2.4px), linear-gradient(155deg, #5CADEE, #1D6FB8); color:#FFFFFF;}
+.falling-item.stripe-red .pt-badge,
+.falling-item.stripe-yellow .pt-badge,
+.falling-item.stripe-blue .pt-badge{
+  background:rgba(0,0,0,0.32);
+  border:1.5px solid rgba(255,255,255,0.65);
+  font-size:10.5px;
+}
+
+.falling-item.invincible-item{
+  width:84px;height:98px;
+  clip-path:polygon(50% 0%, 100% 10%, 100% 48%, 82% 80%, 50% 100%, 18% 80%, 0% 48%, 0% 10%);
+  border-radius:0;
+  background:radial-gradient(circle at 50% 28%, #E4F7C8, #6DBF46 55%, #1D7A3C 100%);
+  color:#FFFFFF;
+  padding:12px 6px 8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 0 0 3px #FFD166 inset, 0 0 0 6px rgba(255,255,255,0.5) inset, 0 0 0 1px rgba(139,90,10,0.55), 0 6px 16px rgba(0,0,0,0.45);
+  animation:shieldPulse 0.9s ease-in-out infinite;
+  position:relative;
+}
+.falling-item.invincible-item .ii-label{
+  text-shadow:0 1px 3px rgba(11,64,35,0.6);
+}
+.falling-item.invincible-item::before{
+  content:"✦";
+  position:absolute;
+  bottom:5px; left:4px;
+  width:auto;height:auto;
+  border:none;
+  font-size:11px;
+  color:#FFFFFF;
+  text-shadow:0 0 4px rgba(255,255,255,0.9);
+  animation:sparkleTwinkle 0.8s ease-in-out infinite 0.4s;
+}
+.falling-item.invincible-item::after{
+  content:"✦";
+  position:absolute;
+  top:1px; right:3px;
+  font-size:15px;
+  color:#FFFFFF;
+  text-shadow:0 0 4px rgba(255,255,255,0.9);
+  animation:sparkleTwinkle 0.8s ease-in-out infinite;
+}
+.invincible-item .ii-inner{
+  width:38px;height:38px;
+  margin-bottom:2px;
+  flex-shrink:0;
+}
+.invincible-item .ii-inner svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));}
+.invincible-item .ii-label{
+  font-family:var(--font-display);
+  font-size:12px;
+  line-height:1.2;
+}
+
+.score-pop{
+  position:absolute;
+  font-family:var(--font-display);
+  font-size:19px;
+  font-weight:700;
+  pointer-events:none;
+  z-index:6;
+  animation:floatUp .8s ease forwards;
+  text-shadow:0 2px 4px rgba(0,0,0,0.5);
+}
+.score-pop.pos{color:var(--success);}
+.score-pop.neg{color:var(--danger);}
+.score-pop.shield{color:var(--gold);}
+
+.basket-wrap{
+  position:absolute;
+  bottom:4px;
+  width:84px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  z-index:4;
+  transform:translateX(-50%);
+}
+.basket-char{
+  width:82px;height:107px;
+  position:relative;
+}
+.basket-char svg{width:100%;height:100%;display:block;}
+.basket-char.invincible svg{
+  filter:drop-shadow(0 0 8px var(--gold)) drop-shadow(0 0 3px var(--gold));
+  animation:basketGlow .5s infinite;
+}
+.basket-char.stunned svg{
+  filter:grayscale(0.65) brightness(0.88);
+  animation:stunnedShake 0.28s ease-in-out infinite;
+}
+.control-hint{
+  text-align:center;
+  color:var(--muted);
+  font-size:11.5px;
+  margin-top:6px;
+  min-height:14px;
+}
+
+/* ---------- Result Screen ---------- */
+.result-hero{
+  text-align:center;
+  margin-bottom:14px;
+}
+.result-tier{
+  font-size:13px;color:var(--gold);margin-bottom:2px;
+}
+.result-score-label{font-size:12px;color:var(--muted);margin-bottom:2px;}
+.result-score{
+  font-family:var(--font-display);
+  font-size:52px;
+  color:var(--white);
+  text-shadow:0 0 30px rgba(255,209,102,0.35);
+}
+.result-rank{
+  font-family:var(--font-display);
+  font-size:16px;
+  color:var(--gold);
+  margin-top:2px;
+}
+.result-char{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:10px 0 18px;
+  color:var(--muted);
+  font-size:13px;
+}
+.result-char .mini-badge{width:34px;height:34px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,0.06);}
+.result-char .mini-badge svg{width:100%;height:100%;display:block;}
+
+.leaderboard-title{
+  font-family:var(--font-display);
+  font-size:15px;
+  color:var(--white);
+  margin:0 0 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.leaderboard-title .refresh{
+  font-size:11px;color:var(--muted);
+  background:none;border:1px solid rgba(255,255,255,0.15);
+  border-radius:999px;padding:5px 10px;cursor:pointer;
+  font-family:var(--font-body);
+}
+.leaderboard-list{
+  flex:1;
+  overflow-y:auto;
+  display:flex;flex-direction:column;gap:7px;
+  margin-bottom:14px;
+  padding-right:2px;
+}
+.lb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
+  border-radius:var(--radius-sm);
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:13.5px;
+}
+.lb-row.me{
+  background:rgba(255,209,102,0.14);
+  border-color:var(--gold);
+}
+.lb-rank{
+  font-family:var(--font-display);
+  width:26px;text-align:center;
+  color:var(--muted);
+  flex-shrink:0;
+}
+.lb-row.rank-1 .lb-rank{color:#FFD700;}
+.lb-row.rank-2 .lb-rank{color:#D8D8D8;}
+.lb-row.rank-3 .lb-rank{color:#E0A458;}
+.lb-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lb-char{font-size:11px;color:var(--muted);}
+.lb-score{font-family:var(--font-display);color:var(--gold);flex-shrink:0;}
+.lb-empty, .lb-loading{color:var(--muted);font-size:13px;text-align:center;padding:20px 0;}
+
+/* ---------- Legend Modal ---------- */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(6,12,24,0.72);
+  z-index:20;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal-sheet{
+  width:100%;max-width:480px;
+  background:var(--paper);
+  border-radius:24px 24px 0 0;
+  padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  max-height:80vh;
+  overflow-y:auto;
+  border-top:1px solid rgba(22,35,62,0.1);
+}
+.modal-title{font-family:var(--font-display);font-size:17px;margin:0 0 12px;color:var(--ink);}
+.legend-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;
+  border-bottom:1px dashed rgba(22,35,62,0.14);
+  font-size:13px;
+}
+.legend-swatch{width:26px;height:26px;border-radius:6px;flex-shrink:0;overflow:hidden;}
+.legend-swatch svg{width:100%;height:100%;display:block;}
+.legend-name{flex:1;color:var(--ink);}
+.legend-pt{font-family:var(--font-display);font-size:13px;}
+.legend-pt.pos{color:var(--success);}
+.legend-pt.neg{color:var(--danger);}
+.legend-pt.shield{color:#9C6B0B;}
+.modal-close{
+  width:100%;margin-top:14px;padding:12px;
+  border-radius:999px;border:none;
+  background:rgba(22,35,62,0.08);color:var(--ink);
+  font-family:var(--font-body);font-size:14px;cursor:pointer;
+}
+
+@keyframes cardEnter{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes countdownPulse{0%{transform:scale(0.5);opacity:0;}55%{transform:scale(1.18);opacity:1;}100%{transform:scale(1);opacity:1;}}
+@keyframes pulseGold{0%,100%{box-shadow:0 0 0 0 rgba(255,209,102,0.55);}50%{box-shadow:0 0 18px 6px rgba(255,209,102,0.85);}}
+@keyframes basketGlow{0%,100%{filter:drop-shadow(0 0 4px var(--gold));}50%{filter:drop-shadow(0 0 14px var(--gold)) drop-shadow(0 0 6px var(--gold));}}
+@keyframes stunnedShake{0%,100%{transform:translateX(0) rotate(0deg);}25%{transform:translateX(-3px) rotate(-3deg);}75%{transform:translateX(3px) rotate(3deg);}}
+@keyframes flashDanger{0%{background:rgba(229,72,77,0);}30%{background:rgba(229,72,77,0.32);}100%{background:rgba(229,72,77,0);}}
+@keyframes flashGold{0%{background:rgba(255,209,102,0);}35%{background:rgba(255,209,102,0.3);}100%{background:rgba(255,209,102,0);}}
+@keyframes floatUp{from{opacity:1;transform:translate(-50%,0);}to{opacity:0;transform:translate(-50%,-48px);}}
+@keyframes shieldPulse{0%,100%{transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 0 rgba(255,209,102,0));}50%{transform:scale(1.09) rotate(-3deg);filter:drop-shadow(0 0 12px rgba(255,209,102,0.9));}}
+@keyframes feverGlow{0%,100%{box-shadow:0 3px 10px rgba(244,121,32,0.5);transform:scale(1);}50%{box-shadow:0 3px 20px rgba(244,121,32,0.9);transform:scale(1.03);}}
+@keyframes fireFlicker{
+  0%,100%{opacity:0.55;}
+  15%{opacity:0.9;}
+  30%{opacity:0.4;}
+  45%{opacity:0.8;}
+  60%{opacity:0.45;}
+  75%{opacity:0.95;}
+  90%{opacity:0.5;}
+}
+@keyframes flameRise{
+  0%{transform:translateY(0) scale(0.8) rotate(0deg); opacity:0.95;}
+  60%{opacity:0.85;}
+  100%{transform:translateY(-170px) scale(1.15) rotate(8deg); opacity:0;}
+}
+@keyframes feverSweep{0%{background-position:0% 0%;}100%{background-position:200% 0%;}}
+@keyframes sparkleTwinkle{0%,100%{opacity:0.25;transform:scale(0.7);}50%{opacity:1;transform:scale(1.2);}}
+
+.hidden{display:none !important;}
+
+#inapp-banner{
+  position:relative;
+  z-index:50;
+  background:#3A2E00;
+  color:#FFE9AF;
+  font-family:var(--font-body);
+  font-size:12px;
+  line-height:1.4;
+  padding:10px 34px 10px 14px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+#inapp-banner b{color:#FFD166;}
+#inapp-banner-close{
+  position:absolute;
+  top:6px; right:8px;
+  width:22px;height:22px;
+  border-radius:50%;
+  border:none;
+  background:rgba(255,255,255,0.15);
+  color:#FFE9AF;
+  font-size:12px;
+  line-height:1;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<svg id="skyline" viewBox="0 0 480 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 파일 캐비닛 -->
+  <rect x="4" y="66" width="42" height="114" rx="3" fill="#0F5C2E"/>
+  <rect x="10" y="78" width="30" height="26" rx="2" fill="#167A3D"/>
+  <rect x="10" y="112" width="30" height="26" rx="2" fill="#167A3D"/>
+  <rect x="10" y="146" width="30" height="26" rx="2" fill="#167A3D"/>
+  <circle cx="34" cy="91" r="2.4" fill="#C9E8B8"/>
+  <circle cx="34" cy="125" r="2.4" fill="#C9E8B8"/>
+  <circle cx="34" cy="159" r="2.4" fill="#C9E8B8"/>
+
+  <!-- 스탠드 조명 -->
+  <rect x="66" y="168" width="26" height="12" rx="3" fill="#0F5C2E"/>
+  <rect x="76" y="120" width="6" height="50" fill="#0F5C2E"/>
+  <path d="M79,120 L60,96 L100,96 Z" fill="#0F5C2E"/>
+  <ellipse cx="79" cy="98" rx="18" ry="5" fill="#00854A" opacity="0.5"/>
+
+  <!-- 모니터 + 키보드 -->
+  <rect x="118" y="76" width="86" height="58" rx="6" fill="#0F5C2E"/>
+  <rect x="126" y="84" width="70" height="42" rx="3" fill="#14B1E7" opacity="0.3"/>
+  <rect x="152" y="134" width="18" height="14" fill="#0F5C2E"/>
+  <rect x="138" y="148" width="46" height="8" rx="3" fill="#0F5C2E"/>
+  <rect x="122" y="162" width="80" height="18" rx="4" fill="#0F5C2E"/>
+
+  <!-- 화분 -->
+  <path d="M232,180 L238,150 L262,150 L268,180 Z" fill="#0F5C2E"/>
+  <ellipse cx="250" cy="120" rx="10" ry="22" fill="#00854A" opacity="0.6" transform="rotate(-18 250 120)"/>
+  <ellipse cx="250" cy="120" rx="10" ry="24" fill="#00854A" opacity="0.6" transform="rotate(12 250 120)"/>
+  <ellipse cx="250" cy="112" rx="9" ry="26" fill="#00854A" opacity="0.75"/>
+
+  <!-- 서류·청약서 더미 -->
+  <rect x="292" y="150" width="60" height="10" rx="2" fill="#0F5C2E" transform="rotate(-4 322 155)"/>
+  <rect x="290" y="162" width="62" height="10" rx="2" fill="#0F5C2E" transform="rotate(3 321 167)"/>
+  <rect x="294" y="174" width="58" height="10" rx="2" fill="#0F5C2E" transform="rotate(-2 323 179)"/>
+
+  <!-- 화이트보드 + 포스트잇 -->
+  <rect x="372" y="60" width="72" height="90" rx="4" fill="#0F5C2E" opacity="0.92"/>
+  <rect x="380" y="70" width="18" height="18" fill="#F47920" opacity="0.8"/>
+  <rect x="402" y="70" width="18" height="18" fill="#FFD166" opacity="0.8"/>
+  <rect x="380" y="92" width="18" height="18" fill="#00854A" opacity="0.8"/>
+  <line x1="380" y1="122" x2="426" y2="122" stroke="#C9E8B8" stroke-width="2" opacity="0.5"/>
+  <line x1="380" y1="132" x2="416" y2="132" stroke="#C9E8B8" stroke-width="2" opacity="0.5"/>
+
+  <!-- 사무용 의자 -->
+  <rect x="452" y="90" width="24" height="60" rx="10" fill="#0F5C2E"/>
+  <rect x="450" y="150" width="28" height="10" rx="3" fill="#0F5C2E"/>
+  <rect x="460" y="160" width="8" height="16" fill="#0F5C2E"/>
+  <ellipse cx="464" cy="178" rx="16" ry="4" fill="#0F5C2E" opacity="0.6"/>
+</svg>
+
+<!-- ============ START SCREEN ============ -->
+<section class="screen active" id="screen-start">
+  <button class="info-btn" id="btn-legend" aria-label="점수표 보기">?</button>
+  <div class="brand-eyebrow">DB손해보험 전략사업부문 광화문사업단</div>
+  <h1 class="title">FC 계약 받아<br><em>소득</em> 올리기</h1>
+  <p class="subtitle">60초 동안 좋은 서류는 받고, 나쁜 서류는 피해주세요!</p>
+
+  <p class="field-label">이름</p>
+  <input type="text" id="input-name" class="name-input" placeholder="이름을 입력하세요 (예: 신민석)" maxlength="12">
+
+  <p class="field-label">캐릭터 선택</p>
+  <div class="char-list" id="char-list"></div>
+
+  <button class="primary-btn" id="btn-start" disabled>게임 시작</button>
+</section>
+
+<!-- ============ COUNTDOWN SCREEN ============ -->
+<section class="screen" id="screen-countdown">
+  <div class="countdown-num" id="countdown-num">3</div>
+  <div class="countdown-sub">서류를 받을 준비!</div>
+</section>
+
+<!-- ============ GAME SCREEN ============ -->
+<section class="screen" id="screen-game">
+  <div class="hud">
+    <div class="hud-pill timer" id="hud-timer">⏱ 60</div>
+    <div class="hud-pill score" id="hud-score">0점</div>
+    <button class="hud-pill settings-btn" id="btn-pause" aria-label="일시정지 및 설정">⚙</button>
+  </div>
+  <div class="hud-invincible" id="hud-invincible">&nbsp;</div>
+  <div class="hud-fever hidden" id="hud-fever">🔥 FEVER TIME! 점수 2배 🔥</div>
+  <div class="game-area" id="game-area">
+    <div class="flash-overlay" id="flash-overlay"></div>
+    <div class="basket-wrap" id="basket-wrap">
+      <div class="basket-char" id="basket-char"></div>
+    </div>
+    <div class="pause-layer hidden" id="pause-layer">
+      <div class="pause-card">
+        <p class="modal-title">일시정지</p>
+
+        <p class="field-label" style="margin-top:14px;">배경음(BGM)</p>
+        <div class="volume-row">
+          <button class="mute-btn" id="btn-bgm-mute">🔊</button>
+          <input type="range" id="range-bgm" min="0" max="100" value="35">
+        </div>
+
+        <p class="field-label" style="margin-top:14px;">효과음(SFX)</p>
+        <div class="volume-row">
+          <button class="mute-btn" id="btn-sfx-mute">🔊</button>
+          <input type="range" id="range-sfx" min="0" max="100" value="60">
+        </div>
+
+        <button class="primary-btn" id="btn-resume" style="margin-top:20px;">게임 이어하기</button>
+        <button class="ghost-btn" id="btn-quit">처음 화면으로 나가기</button>
+      </div>
+    </div>
+  </div>
+  <div class="control-hint" id="control-hint">화면을 좌우로 드래그하거나 방향키로 이동하세요</div>
+</section>
+
+<!-- ============ RESULT SCREEN ============ -->
+<section class="screen" id="screen-result">
+  <div class="result-hero">
+    <div class="result-tier" id="result-tier">결과 발표!</div>
+    <div class="result-score-label">최종 점수</div>
+    <div class="result-score" id="result-score">0점</div>
+    <div class="result-rank" id="result-rank"></div>
+  </div>
+  <div class="result-char" id="result-char"></div>
+
+  <button class="primary-btn" id="btn-share">📤 카톡으로 결과 공유하기</button>
+  <button class="ghost-btn" id="btn-retry">다시 도전하기</button>
+</section>
+
+</div>
+
+<!-- ============ LEGEND MODAL ============ -->
+<div class="modal-overlay" id="legend-modal">
+  <div class="modal-sheet">
+    <p class="modal-title">아이템 점수표</p>
+    <div id="legend-body"></div>
+    <button class="modal-close" id="btn-close-legend">닫기</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ========================================================
+   CONFIG
+======================================================== */
+var GAME_DURATION = 60; // seconds
+
+var ITEM_TYPES = [
+  { id:'child',        label:['자녀보험','청약서'], score:200,  weight:3,  speed:250, cls:'pos' },
+  { id:'comprehensive', label:['종합보험','청약서'], score:150,  weight:5,  speed:225, cls:'pos' },
+  { id:'simple',        label:['간편보험','청약서'], score:100,  weight:9,  speed:205, cls:'pos' },
+  { id:'meritz',  label:['메리츠화재','청약서'], score:-100, weight:4,  speed:215, cls:'neg', stripe:'stripe-red' },
+  { id:'kb',      label:['KB손보','청약서'],     score:-100, weight:4,  speed:215, cls:'neg', stripe:'stripe-yellow' },
+  { id:'samsung', label:['삼성화재','청약서'],   score:-100, weight:4,  speed:215, cls:'neg', stripe:'stripe-blue' },
+  { id:'property', label:['재물보험','청약서'], score:50,  weight:11, speed:185, cls:'pos' },
+  { id:'complaint', label:['고객 민원','서류'], score:-50, weight:9,  speed:185, cls:'neg' },
+  { id:'pet',     label:['펫보험','청약서'],     score:-10, weight:14, speed:165, cls:'neg' },
+  { id:'driver',  label:['운전자보험','청약서'], score:25,  weight:16, speed:150, cls:'pos' },
+  { id:'reg',     label:['고객 등록','서류'],     score:10,  weight:20, speed:130, cls:'pos' }
+];
+var ITEM_TOTAL_WEIGHT = ITEM_TYPES.reduce(function(s,i){return s+i.weight;},0);
+
+/* ========================================================
+   ITEM ICONS - small pictograms so falling items are easy to
+   tell apart at a glance (child / adult / elderly / house / car /
+   plain / pet / complaint / competitor monograms)
+======================================================== */
+var ICON_SVGS = {
+  child: '<svg viewBox="0 0 40 40"><circle cx="20" cy="19" r="11" fill="#FFE1C4"/><circle cx="9.5" cy="19" r="2" fill="#FFE1C4"/><circle cx="30.5" cy="19" r="2" fill="#FFE1C4"/><path d="M13,14 Q17,8.5 20,9.5 Q23,8.5 27,14 Q24,12.5 20,12.3 Q16,12.5 13,14 Z" fill="#8B5A2B"/><circle cx="15.3" cy="19.5" r="1.7" fill="#33363B"/><circle cx="24.7" cy="19.5" r="1.7" fill="#33363B"/><circle cx="15.9" cy="18.7" r="0.6" fill="#FFFFFF"/><circle cx="25.3" cy="18.7" r="0.6" fill="#FFFFFF"/><ellipse cx="12" cy="22.5" rx="2" ry="1.3" fill="#FFAFBE" opacity="0.65"/><ellipse cx="28" cy="22.5" rx="2" ry="1.3" fill="#FFAFBE" opacity="0.65"/><path d="M16.5,23.5 Q20,26.5 23.5,23.5" stroke="#B5503E" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M8,38 Q8,29.5 20,29.5 Q32,29.5 32,38 Z" fill="#7EC8E3"/></svg>',
+  comprehensive: '<svg viewBox="0 0 40 40"><circle cx="20" cy="16" r="8" fill="#E8B88A"/><ellipse cx="20" cy="10.3" rx="9.2" ry="5.6" fill="#2B2118"/><path d="M20,5.2 Q20.4,8.6 20,11.6" stroke="#1A130F" stroke-width="0.9" opacity="0.55" fill="none"/><path d="M15.3,15.3 Q16.5,14.1 17.7,15.1" stroke="#1A130F" stroke-width="0.9" fill="none" stroke-linecap="round"/><path d="M22.3,15.1 Q23.5,14.1 24.7,15.3" stroke="#1A130F" stroke-width="0.9" fill="none" stroke-linecap="round"/><circle cx="16.8" cy="17" r="1.1" fill="#1A130F"/><circle cx="23.2" cy="17" r="1.1" fill="#1A130F"/><path d="M17.5,21 Q20,22.5 22.5,21" stroke="#7A4A2B" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.75"/><path d="M7,37 Q7,22 20,22 Q33,22 33,37 Z" fill="#345C82"/><path d="M17,22 L20,37 L23,22 Z" fill="#C9252C"/></svg>',
+  simple: '<svg viewBox="0 0 40 40"><circle cx="20" cy="15" r="8" fill="#E8B88A"/><path d="M11,12 Q20,5.5 29,12 Q28,9 20,8.3 Q12,9 11,12 Z" fill="#D8D8D8"/><path d="M9.5,11 Q9,16 11.5,19" stroke="#D8D8D8" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M30.5,11 Q31,16 28.5,19" stroke="#D8D8D8" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="15" cy="15" r="3.2" fill="none" stroke="#33363B" stroke-width="1.7"/><circle cx="25" cy="15" r="3.2" fill="none" stroke="#33363B" stroke-width="1.7"/><line x1="18.2" y1="15" x2="21.8" y2="15" stroke="#33363B" stroke-width="1.7"/><path d="M8,36 Q8,22 20,22 Q32,22 32,36 Z" fill="#8A8F98"/><line x1="29" y1="25" x2="34.5" y2="37" stroke="#5B4636" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  property: '<svg viewBox="0 0 40 40"><path d="M20,5 L35,17 L30,17 L30,35 L10,35 L10,17 L5,17 Z" fill="#00854A"/><rect x="16" y="24" width="8" height="11" fill="#FFFFFF"/></svg>',
+  driver: '<svg viewBox="0 0 40 40"><path d="M9,17 L13,9 L27,9 L31,17 Z" fill="#9FD356"/><rect x="5" y="17" width="30" height="11" rx="4" fill="#9FD356"/><circle cx="13" cy="30" r="4" fill="#33363B"/><circle cx="27" cy="30" r="4" fill="#33363B"/></svg>',
+  reg: '<svg viewBox="0 0 40 40"><line x1="9" y1="12" x2="31" y2="12" stroke="#8A8F98" stroke-width="3.2" stroke-linecap="round"/><line x1="9" y1="20" x2="31" y2="20" stroke="#8A8F98" stroke-width="3.2" stroke-linecap="round"/><line x1="9" y1="28" x2="23" y2="28" stroke="#8A8F98" stroke-width="3.2" stroke-linecap="round"/></svg>',
+  pet: '<svg viewBox="0 0 40 40"><ellipse cx="20" cy="27" rx="11" ry="9" fill="#F5A97F"/><circle cx="9" cy="15" r="4.4" fill="#F5A97F"/><circle cx="18" cy="8" r="4.1" fill="#F5A97F"/><circle cx="27" cy="8" r="4.1" fill="#F5A97F"/><circle cx="33" cy="17" r="4.2" fill="#F5A97F"/></svg>',
+  complaint: '<svg viewBox="0 0 40 40"><rect x="13" y="3" width="16" height="19" rx="1.5" fill="#FFFFFF" stroke="#C9252C" stroke-width="1.4"/><line x1="16" y1="9" x2="26" y2="9" stroke="#C9252C" stroke-width="1.4"/><line x1="16" y1="13" x2="26" y2="13" stroke="#C9252C" stroke-width="1.4"/><line x1="16" y1="17" x2="22" y2="17" stroke="#C9252C" stroke-width="1.4"/><rect x="4" y="16" width="32" height="21" rx="2.5" fill="#F6D2CE" stroke="#C9252C" stroke-width="1.5"/><path d="M4,17 L20,29 L36,17" fill="none" stroke="#C9252C" stroke-width="1.5" stroke-linejoin="round"/><rect x="18.4" y="30" width="3.2" height="2.6" rx="1" fill="#C9252C"/></svg>',
+  meritz: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#FFFFFF"/><text x="20" y="27" font-family="Arial,sans-serif" font-size="18" font-weight="800" fill="#C9252C" text-anchor="middle">M</text></svg>',
+  kb: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#FFFFFF"/><text x="20" y="25.5" font-family="Arial,sans-serif" font-size="13" font-weight="800" fill="#A9720C" text-anchor="middle">KB</text></svg>',
+  samsung: '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#FFFFFF"/><text x="20" y="28.5" font-family="Arial,sans-serif" font-size="22" font-weight="800" fill="#0061AF" text-anchor="middle">S</text></svg>',
+  shield: '<svg viewBox="0 0 40 40">' +
+    '<circle cx="20" cy="17" r="7.6" fill="#FFE1C4"/>' +
+    '<ellipse cx="20" cy="11.5" rx="8.7" ry="5.4" fill="#241B17"/>' +
+    '<path d="M20,6.6 Q20.4,9.6 20,12.4" stroke="#150F0C" stroke-width="0.85" opacity="0.5" fill="none"/>' +
+    '<path d="M15.1,16.6 Q16.3,15.5 17.6,16.4" stroke="#150F0C" stroke-width="0.85" fill="none" stroke-linecap="round"/>' +
+    '<path d="M22.4,16.4 Q23.7,15.5 24.9,16.6" stroke="#150F0C" stroke-width="0.85" fill="none" stroke-linecap="round"/>' +
+    '<circle cx="16.6" cy="18.2" r="1.05" fill="#1A130F"/>' +
+    '<circle cx="23.4" cy="18.2" r="1.05" fill="#1A130F"/>' +
+    '<circle cx="16.95" cy="17.85" r="0.35" fill="#FFFFFF"/>' +
+    '<circle cx="23.75" cy="17.85" r="0.35" fill="#FFFFFF"/>' +
+    '<path d="M17.3,21.8 Q20,23.2 22.7,21.8" stroke="#7A4A2B" stroke-width="0.9" fill="none" stroke-linecap="round" opacity="0.8"/>' +
+    '<path d="M6,37 Q6.5,25 14,23 L20,27.8 L26,23 Q33.5,25 34,37 Z" fill="#263449"/>' +
+    '<path d="M14,23 L20,27.8 L17,36.5 L10.5,34.3 Z" fill="#33475F"/>' +
+    '<path d="M26,23 L20,27.8 L23,36.5 L29.5,34.3 Z" fill="#33475F"/>' +
+    '<path d="M16.8,25.5 L20,29.5 L23.2,25.5 L21.8,34 L20,35.5 L18.2,34 Z" fill="#FFFFFF"/>' +
+    '<path d="M18.7,27.8 L20,29.8 L21.3,27.8 L20.7,32.3 L20,33.6 L19.3,32.3 Z" fill="#B5342E"/>' +
+  '</svg>'
+};
+
+var CHARACTERS = [
+  { id:'designer',  name:'설계왕 매니저', tagline:'꼼꼼한 설계로 신뢰를 쌓는 노력파', bg:'#DCE7F5', outfit:'#345C82', lapel:'#5A85B8', hair:'#3B2E26', hairline:'#2E241D', bagColor:'#EFE3C8' },
+  { id:'performer',  name:'실적왕 매니저', tagline:'숫자로 증명하는 클로징의 고수', bg:'#DFF3EA', outfit:'#1F5C4E', lapel:'#2C7A67', hair:'#241B17', hairline:'#1A130F', bagColor:'#F0C34D' },
+  { id:'sense',   name:'센스왕 매니저', tagline:'분위기 메이커, 발 넓은 인싸형', bg:'#FFE8E1', outfit:'#FF7E67', lapel:'#FF9C89', hair:'#5B3A29', hairline:'#4A2E1F', bagColor:'#FFD166' }
+];
+var SKIN = '#FFE1C4';
+var OUTLINE = '#2B2118';
+var svgInstanceCounter = 0;
+
+/* ========================================================
+   CHARACTER SVG (female GA manager style: blazer + ID badge,
+   big symmetric sparkly eyes, slim modern face, FULL-VOLUME
+   hair with a solid crown dome so no scalp is ever visible,
+   plus concept-specific props for gameplay: tablet / gold pen /
+   iced coffee, held via a crossbody satchel as the catch-zone)
+======================================================== */
+function badgeSVG(color){
+  return '<rect x="90" y="165" width="20" height="26" rx="4" fill="#FFFFFF" stroke="'+color+'" stroke-width="2.5"/>' +
+         '<circle cx="100" cy="174" r="5" fill="'+color+'" opacity="0.35"/>' +
+         '<rect x="94" y="182" width="12" height="3" rx="1.5" fill="'+color+'" opacity="0.5"/>';
+}
+
+/* Simple round "sticker" eye: white ellipse + bold outline + big iris - matches
+   the cute-illustration reference (clear white, big dark iris, crisp outline,
+   plus an outer lash flick for a more natural expressive look) */
+function eyeSVG(cx, cy, outerSide){
+  var rx = 8, ry = 9.5;
+  var flick = '<path d="M'+(cx+outerSide*rx*0.85)+','+(cy-3)+
+    ' Q'+(cx+outerSide*(rx+5))+','+(cy-6.5)+' '+(cx+outerSide*(rx+7))+','+(cy-9.5)+'"' +
+    ' stroke="'+OUTLINE+'" stroke-width="2.1" fill="none" stroke-linecap="round"/>';
+  return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="#FFFFFF" stroke="'+OUTLINE+'" stroke-width="2.2"/>' +
+    '<circle cx="'+cx+'" cy="'+(cy+1.8)+'" r="6.6" fill="#3A2718"/>' +
+    '<circle cx="'+cx+'" cy="'+(cy+1.8)+'" r="4" fill="#000000"/>' +
+    '<circle cx="'+(cx-2.6)+'" cy="'+(cy-2)+'" r="2.3" fill="#FFFFFF"/>' +
+    '<circle cx="'+(cx+2.8)+'" cy="'+(cy+3.6)+'" r="1.1" fill="#FFFFFF" opacity="0.9"/>' +
+    flick;
+}
+
+function crownDome(hair){
+  return '<ellipse cx="100" cy="50" rx="56" ry="30" fill="'+hair+'"/>' +
+         '<ellipse cx="100" cy="58" rx="53" ry="26" fill="'+hair+'"/>';
+}
+
+function getHairParts(id, c){
+  var hairBack, hairCrown, accessory;
+  if(id==='designer'){
+    // voluminous C-curl bob - ends curl inward. Solid crown dome underneath
+    // guarantees full coverage (no visible scalp); outline traces only the
+    // TRUE outer silhouette (this path) so there are no stray seam lines.
+    hairBack = '<path d="M40,86 Q32,40 100,34 Q168,40 160,86 Q164,118 148,144 Q152,108 142,90 Q140,118 122,136 Q128,102 118,88' +
+               ' Q100,70 82,88 Q72,102 78,136 Q60,118 66,90 Q56,108 60,144 Q44,118 40,86 Z" fill="'+c.hair+'" stroke="'+OUTLINE+'" stroke-width="2.6" stroke-linejoin="round"/>';
+    hairCrown = crownDome(c.hair) +
+      '<path d="M44,84 Q48,54 76,42" stroke="'+c.hair+'" stroke-width="16" fill="none" stroke-linecap="round"/>' +
+      '<path d="M156,84 Q152,54 124,42" stroke="'+c.hair+'" stroke-width="16" fill="none" stroke-linecap="round"/>' +
+      '<path d="M58,80 Q64,60 82,48" stroke="'+c.hairline+'" stroke-width="1.2" fill="none" opacity="0.3"/>' +
+      '<path d="M142,80 Q136,60 118,48" stroke="'+c.hairline+'" stroke-width="1.2" fill="none" opacity="0.3"/>';
+    accessory = '<g fill="none" stroke="'+OUTLINE+'" stroke-width="2.4">' +
+                '<circle cx="76" cy="90" r="13"/><circle cx="124" cy="90" r="13"/>' +
+                '<line x1="89" y1="88" x2="111" y2="88"/>' +
+                '<line x1="63" y1="87" x2="57" y2="84"/><line x1="137" y1="87" x2="143" y2="84"/>' +
+                '</g>';
+  } else if(id==='performer'){
+    // long S-wave hair past the shoulders - confident, polished
+    hairBack = '<path d="M38,84 Q30,38 100,32 Q170,38 162,84 Q168,146 154,202 Q160,176 150,148 Q158,168 148,196' +
+               ' Q140,148 146,108 Q100,84 54,108 Q60,148 52,196 Q42,168 50,148 Q40,176 46,202 Q32,146 38,84 Z" fill="'+c.hair+'" stroke="'+OUTLINE+'" stroke-width="2.6" stroke-linejoin="round"/>';
+    hairCrown = crownDome(c.hair) +
+      '<path d="M42,82 Q46,52 74,40" stroke="'+c.hair+'" stroke-width="16" fill="none" stroke-linecap="round"/>' +
+      '<path d="M158,82 Q154,52 126,40" stroke="'+c.hair+'" stroke-width="16" fill="none" stroke-linecap="round"/>' +
+      '<path d="M54,78 Q60,58 80,46" stroke="'+c.hairline+'" stroke-width="1.2" fill="none" opacity="0.3"/>' +
+      '<path d="M146,78 Q140,58 120,46" stroke="'+c.hairline+'" stroke-width="1.2" fill="none" opacity="0.3"/>';
+    accessory = '<path d="M84,148 l16,10 l16,-10" stroke="#F0C34D" stroke-width="2.2" fill="none"/>' +
+                '<circle cx="118" cy="149" r="5" fill="#F0C34D" stroke="'+OUTLINE+'" stroke-width="1.3"/>' +
+                '<path d="M114.8,146.8 l2.8,3.2 l6,-6.5" stroke="'+c.outfit+'" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+  } else {
+    // high ponytail - trendy, energetic
+    hairBack = '<path d="M44,82 Q36,40 100,34 Q164,40 156,82 Q158,70 100,60 Q42,70 44,82 Z" fill="'+c.hair+'" stroke="'+OUTLINE+'" stroke-width="2.6" stroke-linejoin="round"/>' +
+               '<path d="M122,54 Q142,38 158,18 Q170,30 160,50 Q150,60 134,62 Z" fill="'+c.hair+'" stroke="'+OUTLINE+'" stroke-width="2.4" stroke-linejoin="round"/>' +
+               '<path d="M150,50 Q170,58 174,94 Q176,128 160,148 Q170,108 158,78 Q162,98 152,116 Q158,86 142,62 Z" fill="'+c.hair+'" stroke="'+OUTLINE+'" stroke-width="2.4" stroke-linejoin="round"/>' +
+               '<ellipse cx="130" cy="56" rx="7" ry="9" fill="#E85A45" stroke="'+OUTLINE+'" stroke-width="1.6"/>';
+    hairCrown = crownDome(c.hair) +
+      '<path d="M46,80 Q50,52 76,40" stroke="'+c.hair+'" stroke-width="15" fill="none" stroke-linecap="round"/>' +
+      '<path d="M154,80 Q150,52 124,40" stroke="'+c.hair+'" stroke-width="15" fill="none" stroke-linecap="round"/>' +
+      '<path d="M58,76 Q63,58 80,46" stroke="'+c.hairline+'" stroke-width="1.2" fill="none" opacity="0.3"/>';
+    accessory = '<circle cx="52" cy="110" r="3.2" fill="#FFD166" stroke="'+OUTLINE+'" stroke-width="1"/><circle cx="148" cy="110" r="3.2" fill="#FFD166" stroke="'+OUTLINE+'" stroke-width="1"/>';
+  }
+  return { hairBack:hairBack, hairCrown:hairCrown, accessory:accessory };
+}
+
+function faceExpression(expr){
+  if(expr==='happy'){
+    return {
+      eyebrows:
+        '<path d="M66,73 Q77,66 90,71" stroke="'+OUTLINE+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M110,71 Q123,66 134,73" stroke="'+OUTLINE+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>',
+      mouth:
+        '<path d="M84,114 Q100,128 116,114 Q100,124 84,114 Z" fill="#C9636B"/>' +
+        '<path d="M90,119 Q100,123 110,119 L108,121.5 Q100,124.5 92,121.5 Z" fill="#FFFFFF" opacity="0.92"/>' +
+        '<path d="M84,114 Q100,128 116,114" stroke="'+OUTLINE+'" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+      extra: ''
+    };
+  }
+  if(expr==='sad'){
+    return {
+      eyebrows:
+        '<path d="M67,71 Q78,79 89,75" stroke="'+OUTLINE+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+        '<path d="M111,75 Q122,79 133,71" stroke="'+OUTLINE+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>',
+      mouth:
+        '<path d="M90,124 Q100,114 110,124" stroke="'+OUTLINE+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+      extra:
+        '<path d="M60,98 Q57,107 61,111 Q65,107 63,98 Q61,94 60,98 Z" fill="#6FB6E0" opacity="0.85"/>'
+    };
+  }
+  return {
+    eyebrows:
+      '<path d="M67,76 Q77,69 89,73" stroke="'+OUTLINE+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+      '<path d="M111,73 Q123,69 133,76" stroke="'+OUTLINE+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>',
+    mouth:
+      '<path d="M89,116 Q100,125 111,116 Q100,121 89,116 Z" fill="#C9636B"/>' +
+      '<path d="M89,116 Q100,125 111,116" stroke="'+OUTLINE+'" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    extra: ''
+  };
+}
+
+function headBlock(id, c, expression){
+  svgInstanceCounter++;
+  var parts = getHairParts(id, c);
+  var face = faceExpression(expression);
+  return {
+    top:
+      parts.hairBack +
+      '<circle cx="56" cy="97" r="7.5" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="1.8"/>' +
+      '<circle cx="144" cy="97" r="7.5" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="1.8"/>' +
+      // rounder, fuller face (cute-illustration style, not a tapered "slim" oval)
+      '<path d="M100,34 C126,34 140,58 140,88 C140,116 126,142 100,142 C74,142 60,116 60,88 C60,58 74,34 100,34 Z" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2.6"/>' +
+      '<circle cx="69" cy="104" r="9.5" fill="#FFB3BE" opacity="0.75"/>' +
+      '<circle cx="131" cy="104" r="9.5" fill="#FFB3BE" opacity="0.75"/>' +
+      face.eyebrows +
+      eyeSVG(76, 92, -1) +
+      eyeSVG(124, 92, 1) +
+      '<path d="M98,101 Q100,107 97,109" stroke="'+OUTLINE+'" stroke-width="1.8" fill="none" stroke-linecap="round"/>' +
+      face.mouth +
+      face.extra,
+    front: parts.hairCrown + parts.accessory
+  };
+}
+
+function charSVG(id){
+  var c = CHARACTERS.filter(function(x){return x.id===id;})[0];
+  var head = headBlock(id, c);
+
+  return '' +
+  '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle cx="100" cy="100" r="98" fill="'+c.bg+'"/>' +
+    '<path d="M26,200 Q30,142 78,132 L100,137 L122,132 Q170,142 174,200 Z" fill="'+c.outfit+'" stroke="'+OUTLINE+'" stroke-width="2.4"/>' +
+    '<path d="M78,132 L100,137 L94,172 L67,165 Z" fill="'+c.lapel+'" stroke="'+OUTLINE+'" stroke-width="1.8"/>' +
+    '<path d="M122,132 L100,137 L106,172 L133,165 Z" fill="'+c.lapel+'" stroke="'+OUTLINE+'" stroke-width="1.8"/>' +
+    '<path d="M90,133 L100,138 L110,133 L108,158 L100,164 L92,158 Z" fill="#FFFFFF" stroke="'+OUTLINE+'" stroke-width="1.5"/>' +
+    head.top +
+    '<path d="M88,136 L82,188" stroke="#5B6472" stroke-width="3" fill="none"/>' +
+    '<path d="M112,136 L118,188" stroke="#5B6472" stroke-width="3" fill="none"/>' +
+    badgeSVG(c.outfit) +
+    head.front +
+  '</svg>';
+}
+
+/* ========================================================
+   FULL-BODY CHARACTER SVG (for gameplay) - visible arms and
+   legs, a crossbody satchel as the catch-zone, and a concept
+   prop (tablet / gold pen / iced coffee) held in the free hand.
+======================================================== */
+function propTablet(){
+  // longer arms (matching the other characters' arm length) with hands that
+  // actually reach the tablet's edges, so it reads as "held with both
+  // hands" rather than floating disconnected from the arms
+  return '<path d="M72,140 Q54,152 53,172 Q52,182 61,184 Q69,182 70,173 Q71,158 84,144 Z" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/>' +
+    '<path d="M128,140 Q146,152 147,172 Q148,182 139,184 Q131,182 130,173 Q129,158 116,144 Z" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/>' +
+    '<circle cx="61" cy="178" r="8" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/>' +
+    '<circle cx="139" cy="178" r="8" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/>' +
+    '<rect x="66" y="163" width="68" height="29" rx="4" fill="#EDEFF3" stroke="'+OUTLINE+'" stroke-width="2.2"/>' +
+    '<rect x="71" y="167" width="58" height="21" rx="2" fill="#5A85B8" stroke="'+OUTLINE+'" stroke-width="1"/>' +
+    '<circle cx="100" cy="185" r="1.5" fill="#9AA3AD"/>';
+}
+function propPen(x, y){
+  return '<g transform="translate('+(x-100)+','+(y-95)+') rotate(-25 100 92)">' +
+    '<rect x="97" y="78" width="7" height="36" rx="3" fill="#F0C34D" stroke="'+OUTLINE+'" stroke-width="1.5"/>' +
+    '<path d="M97,78 L104,78 L100.5,68 Z" fill="#C9252C" stroke="'+OUTLINE+'" stroke-width="1.2"/>' +
+    '<rect x="97" y="108" width="7" height="7" fill="#3A3A3A"/>' +
+    '</g>';
+}
+function propCoffee(x, y){
+  return '<g transform="translate('+(x-100)+','+(y-92)+')">' +
+    '<path d="M90,92 L110,92 L107,128 Q100,133 93,128 Z" fill="#FFFFFF" opacity="0.92" stroke="'+OUTLINE+'" stroke-width="1.7"/>' +
+    '<path d="M90,92 L110,92 L108.5,100 L91.5,100 Z" fill="#8FD4E8" opacity="0.7"/>' +
+    '<rect x="88" y="87" width="24" height="7" rx="2.5" fill="#E8F4F8" stroke="'+OUTLINE+'" stroke-width="1.4"/>' +
+    '<rect x="98" y="68" width="5" height="22" rx="2.5" fill="#E8F4F8" stroke="'+OUTLINE+'" stroke-width="1.2"/>' +
+    '</g>';
+}
+
+function charBodySVG(id, expression){
+  var c = CHARACTERS.filter(function(x){return x.id===id;})[0];
+  var head = headBlock(id, c, expression);
+  var armsAndProp;
+
+  if(id==='designer'){
+    armsAndProp = propTablet();
+  } else {
+    var relaxed = '<path d="M66,140 Q52,156 50,180 Q49,188 56,190 Q63,189 64,182 Q65,164 78,146 Z" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/><circle cx="55" cy="185" r="9" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/>';
+    var raised  = '<path d="M134,140 Q150,128 156,108 Q159,100 153,97 Q147,98 145,105 Q141,120 124,138 Z" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/><circle cx="154" cy="101" r="9" fill="'+SKIN+'" stroke="'+OUTLINE+'" stroke-width="2"/>';
+    var prop = id==='performer' ? propPen(154,100) : propCoffee(154,100);
+    armsAndProp = relaxed + raised + prop;
+  }
+
+  return '' +
+  // Chibi proportions (~2-2.5 head-heights tall) - short, stubby, cute
+  '<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">' +
+    // short stubby legs
+    '<path d="M80,192 Q74,208 73,224 Q73,234 80,234 Q86,234 86,228 Q88,210 90,194 Z" fill="'+c.outfit+'" stroke="'+OUTLINE+'" stroke-width="2.2"/>' +
+    '<path d="M120,192 Q126,208 127,224 Q127,234 120,234 Q114,234 114,228 Q112,210 110,194 Z" fill="'+c.outfit+'" stroke="'+OUTLINE+'" stroke-width="2.2"/>' +
+    '<ellipse cx="80" cy="237" rx="11" ry="6.5" fill="#2B2B2B" stroke="'+OUTLINE+'" stroke-width="1.5"/>' +
+    '<ellipse cx="120" cy="237" rx="11" ry="6.5" fill="#2B2B2B" stroke="'+OUTLINE+'" stroke-width="1.5"/>' +
+    // short, simple, cute torso (no fashion waist - just a soft rounded body)
+    '<path d="M76,136 Q66,150 68,164 Q66,178 70,193 L130,193 Q134,178 132,164 Q134,150 124,136 L100,140 Z" fill="'+c.outfit+'" stroke="'+OUTLINE+'" stroke-width="2.4"/>' +
+    '<path d="M76,136 L100,140 L95,166 L70,159 Z" fill="'+c.lapel+'" stroke="'+OUTLINE+'" stroke-width="1.8"/>' +
+    '<path d="M124,136 L100,140 L105,166 L130,159 Z" fill="'+c.lapel+'" stroke="'+OUTLINE+'" stroke-width="1.8"/>' +
+    '<path d="M91,137 L100,141 L109,137 L107,157 L100,162 L93,157 Z" fill="#FFFFFF" stroke="'+OUTLINE+'" stroke-width="1.5"/>' +
+    head.top +
+    // the ID badge/lanyard would sit right where the tablet is hugged and
+    // made it look like the tablet was hanging from the neck strap - skip
+    // both for designer, same reasoning as the crossbody bag below
+    (id==='designer' ? '' :
+      '<path d="M88,136 L84,168" stroke="#5B6472" stroke-width="3" fill="none"/>' +
+      '<path d="M112,136 L116,168" stroke="#5B6472" stroke-width="3" fill="none"/>' +
+      badgeSVG(c.outfit)) +
+    head.front +
+    // the crossbody bag would sit right where the tablet is hugged, so skip
+    // it for designer - the tablet itself already reads as the held object
+    (id==='designer' ? '' :
+      '<path d="M62,144 L124,198" stroke="'+c.bagColor+'" stroke-width="8" fill="none" opacity="0.9"/>' +
+      '<path d="M92,180 Q92,168 116,168 Q140,168 140,180 L137,204 Q116,211 95,204 Z" fill="'+c.bagColor+'" stroke="'+OUTLINE+'" stroke-width="2"/>') +
+    // arms + prop drawn LAST so they're never hidden behind hair
+    armsAndProp +
+  '</svg>';
+}
+
+
+/* ========================================================
+   STATE
+======================================================== */
+var state = {
+  name:'',
+  character:null,
+  score:0,
+  timeLeft:GAME_DURATION,
+  running:false,
+  paused:false,
+  bgmActive:false,
+  items:[],
+  basketX:0,
+  basketTargetX:0,
+  pointerActive:false,
+  keys:{left:false,right:false},
+  invincibleUntil:0,
+  spawnAcc:0,
+  nextSpawnIn:600,
+  elapsed:0,
+  invincibleQueue:[],
+  lastTs:0,
+  areaW:0,
+  areaH:0
+};
+
+/* ========================================================
+   AUDIO ENGINE (procedural WebAudio - no external files needed)
+======================================================== */
+var audioCtx = null;
+var bgmGain = null;
+var sfxGain = null;
+var bgmTimerId = null;
+var bgmStep = 0;
+var audioSettings = { bgmVolume:0.35, sfxVolume:0.6, bgmMuted:false, sfxMuted:false };
+var BGM_PATTERN = [261.63,329.63,392.00,329.63,293.66,349.23,440.00,349.23];
+var FEVER_BGM_PATTERN = [392.00,493.88,587.33,493.88,440.00,523.25,659.25,523.25,587.33,698.46,783.99,698.46];
+
+function initAudio(){
+  if(audioCtx) return;
+  try{
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return;
+    audioCtx = new Ctx();
+    bgmGain = audioCtx.createGain();
+    bgmGain.gain.value = audioSettings.bgmMuted ? 0 : audioSettings.bgmVolume;
+    bgmGain.connect(audioCtx.destination);
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = audioSettings.sfxMuted ? 0 : audioSettings.sfxVolume;
+    sfxGain.connect(audioCtx.destination);
+  }catch(e){ audioCtx = null; }
+}
+function unlockAudioForMobile(){
+  // iOS Safari (and many in-app webviews, incl. KakaoTalk's) only allow audio
+  // after a real user gesture, and calling resume() alone is sometimes not
+  // enough - actually starting a silent buffer inside the gesture handler is
+  // the most reliable known "unlock" trick.
+  if(!audioCtx) return;
+  try{
+    if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(function(){}); }
+    var buffer = audioCtx.createBuffer(1, 1, 22050);
+    var src = audioCtx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(audioCtx.destination);
+    if(src.start) src.start(0); else if(src.noteOn) src.noteOn(0);
+  }catch(e){}
+}
+function resumeAudioCtx(){
+  initAudio();
+  unlockAudioForMobile();
+}
+function playTone(freq, duration, type, gainNode, startTime, peakGain){
+  if(!audioCtx || !gainNode) return;
+  try{
+    var osc = audioCtx.createOscillator();
+    var g = audioCtx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    var t0 = startTime || audioCtx.currentTime;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(peakGain!=null?peakGain:1, t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+duration);
+    osc.connect(g);
+    g.connect(gainNode);
+    osc.start(t0);
+    osc.stop(t0+duration+0.02);
+  }catch(e){}
+}
+function sfxClick(){ resumeAudioCtx(); if(audioCtx) playTone(520,0.05,'sine',sfxGain,audioCtx.currentTime,0.22); }
+function sfxCatchPositive(){
+  if(!audioCtx) return;
+  playTone(880,0.11,'triangle',sfxGain,audioCtx.currentTime,0.45);
+  playTone(1320,0.12,'triangle',sfxGain,audioCtx.currentTime+0.05,0.32);
+}
+function sfxCatchNegative(){
+  if(!audioCtx) return;
+  playTone(220,0.18,'sawtooth',sfxGain,audioCtx.currentTime,0.32);
+}
+function sfxStun(){
+  if(!audioCtx) return;
+  [180,150,120].forEach(function(f,i){
+    playTone(f,0.22,'sawtooth',sfxGain,audioCtx.currentTime+i*0.1,0.3);
+  });
+}
+function sfxShield(){
+  if(!audioCtx) return;
+  [660,880,1100,1320].forEach(function(f,i){
+    playTone(f,0.1,'square',sfxGain,audioCtx.currentTime+i*0.05,0.25);
+  });
+}
+function sfxFever(){
+  if(!audioCtx) return;
+  [523,659,784,1047,1319].forEach(function(f,i){
+    playTone(f,0.16,'triangle',sfxGain,audioCtx.currentTime+i*0.06,0.35);
+  });
+}
+function scheduleBgmStep(){
+  if(!audioCtx || !state.bgmActive) return;
+  var fever = state.feverActive;
+  var pattern = fever ? FEVER_BGM_PATTERN : BGM_PATTERN;
+  var freq = pattern[bgmStep % pattern.length];
+  if(fever){
+    playTone(freq,0.26,'triangle',bgmGain,audioCtx.currentTime,0.26);
+  } else {
+    playTone(freq,0.5,'sine',bgmGain,audioCtx.currentTime,0.2);
+  }
+  bgmStep++;
+  bgmTimerId = setTimeout(scheduleBgmStep, fever ? 190 : 380);
+}
+function startBgm(){
+  if(!audioCtx) return;
+  if(state.bgmActive) return;
+  state.bgmActive = true;
+  scheduleBgmStep();
+}
+function stopBgm(){
+  state.bgmActive = false;
+  if(bgmTimerId){ clearTimeout(bgmTimerId); bgmTimerId = null; }
+}
+function applyAudioSettings(){
+  if(bgmGain) bgmGain.gain.value = audioSettings.bgmMuted ? 0 : audioSettings.bgmVolume;
+  if(sfxGain) sfxGain.gain.value = audioSettings.sfxMuted ? 0 : audioSettings.sfxVolume;
+}
+// Unlock audio on the first user interaction, listening for several gesture
+// types at once (mobile browsers vary in which one they honor) and keep
+// re-attempting on every tap until the context is confirmed running - some
+// in-app webviews (KakaoTalk, etc.) need more than one try.
+function primeAudioOnce(){
+  resumeAudioCtx();
+  if(audioCtx && audioCtx.state === 'running'){
+    GESTURE_EVENTS.forEach(function(ev){ document.removeEventListener(ev, primeAudioOnce, true); });
+  }
+}
+var GESTURE_EVENTS = ['touchstart','touchend','pointerdown','mousedown','click','keydown'];
+GESTURE_EVENTS.forEach(function(ev){ document.addEventListener(ev, primeAudioOnce, true); });
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible') resumeAudioCtx();
+});
+
+/* ========================================================
+   IN-APP BROWSER NOTICE (KakaoTalk, etc.)
+   These in-app webviews inject their own tracking scripts and
+   often restrict audio/autoplay. We can't force our way out of
+   them, but we can point the person to the fix.
+======================================================== */
+(function(){
+  var ua = navigator.userAgent || '';
+  if(!/KAKAOTALK/i.test(ua)) return;
+  var banner = document.createElement('div');
+  banner.id = 'inapp-banner';
+  banner.innerHTML =
+    '<span>카카오톡 브라우저에서는 소리가 제한될 수 있어요. 우측 상단 메뉴(⋮ 또는 공유 아이콘)에서 <b>"다른 브라우저로 열기"</b>를 눌러주세요.</span>' +
+    '<button id="inapp-banner-close" aria-label="닫기">✕</button>';
+  document.body.insertBefore(banner, document.body.firstChild);
+  document.getElementById('inapp-banner-close').addEventListener('click', function(){
+    banner.remove();
+  });
+})();
+
+/* ========================================================
+   DOM REFS
+======================================================== */
+var $ = function(id){ return document.getElementById(id); };
+var screens = {
+  start: $('screen-start'),
+  countdown: $('screen-countdown'),
+  game: $('screen-game'),
+  result: $('screen-result')
+};
+function showScreen(name){
+  Object.keys(screens).forEach(function(k){
+    screens[k].classList.toggle('active', k===name);
+  });
+}
+
+/* ========================================================
+   START SCREEN SETUP
+======================================================== */
+var charListEl = $('char-list');
+CHARACTERS.forEach(function(c, idx){
+  var card = document.createElement('div');
+  card.className = 'char-card';
+  card.style.animationDelay = (idx*0.06)+'s';
+  card.dataset.id = c.id;
+  card.innerHTML =
+    '<div class="char-badge">'+charSVG(c.id)+'</div>' +
+    '<div class="char-info"><p class="char-name">'+c.name+'</p><p class="char-tagline">'+c.tagline+'</p></div>' +
+    '<div class="char-check">✓</div>';
+  card.addEventListener('click', function(){
+    document.querySelectorAll('.char-card').forEach(function(el){ el.classList.remove('selected'); });
+    card.classList.add('selected');
+    state.character = c.id;
+    validateStart();
+  });
+  charListEl.appendChild(card);
+});
+
+var nameInput = $('input-name');
+nameInput.addEventListener('input', function(){
+  state.name = nameInput.value.trim();
+  validateStart();
+});
+
+var startBtn = $('btn-start');
+function validateStart(){
+  startBtn.disabled = !(state.name && state.name.length>0 && state.character);
+}
+
+/* Legend modal */
+var legendBody = $('legend-body');
+var sortedLegendItems = ITEM_TYPES.slice().sort(function(a,b){ return b.score - a.score; });
+sortedLegendItems.forEach(function(it){
+  var row = document.createElement('div');
+  row.className = 'legend-row';
+  row.innerHTML = '<div class="legend-swatch">'+(ICON_SVGS[it.id]||'')+'</div>' +
+    '<div class="legend-name">'+it.label.join(' ')+'</div>' +
+    '<div class="legend-pt '+it.cls+'">'+(it.score>0?'+':'')+it.score+'</div>';
+  legendBody.appendChild(row);
+});
+var shieldRow = document.createElement('div');
+shieldRow.className = 'legend-row';
+shieldRow.innerHTML = '<div class="legend-swatch">'+ICON_SVGS.shield+'</div>' +
+  '<div class="legend-name">DB손보 지점장 방패</div>' +
+  '<div class="legend-pt shield">5초 무적</div>';
+legendBody.appendChild(shieldRow);
+
+
+
+$('btn-legend').addEventListener('click', function(){ $('legend-modal').classList.add('open'); });
+$('btn-close-legend').addEventListener('click', function(){ $('legend-modal').classList.remove('open'); });
+$('legend-modal').addEventListener('click', function(e){ if(e.target.id==='legend-modal') $('legend-modal').classList.remove('open'); });
+
+/* ========================================================
+   GAME START / COUNTDOWN
+======================================================== */
+startBtn.addEventListener('click', function(){
+  // make sure no lingering focus (e.g. the name input) can intercept
+  // arrow-key presses once the game starts
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  initAudio();
+  resumeAudioCtx();
+  sfxClick();
+  showScreen('countdown');
+  runCountdown(3);
+});
+
+function runCountdown(n){
+  var numEl = $('countdown-num');
+  numEl.textContent = n;
+  numEl.style.animation = 'none';
+  void numEl.offsetWidth;
+  numEl.style.animation = '';
+  if(n>0){
+    setTimeout(function(){ runCountdown(n-1); }, 700);
+  } else {
+    setTimeout(function(){ startGame(); }, 500);
+  }
+}
+
+/* ========================================================
+   GAME AREA SETUP / CONTROLS
+======================================================== */
+var gameArea = $('game-area');
+var basketWrap = $('basket-wrap');
+var basketCharEl = $('basket-char');
+var flashOverlay = $('flash-overlay');
+var hudTimer = $('hud-timer');
+var hudScore = $('hud-score');
+var hudInvincible = $('hud-invincible');
+var hudFever = $('hud-fever');
+var controlHint = $('control-hint');
+var pauseLayer = $('pause-layer');
+var currentExpression = 'neutral';
+var expressionTimeoutId = null;
+
+function setExpression(expr){
+  if(!state.running) return;
+  currentExpression = expr;
+  basketCharEl.innerHTML = charBodySVG(state.character, expr);
+  basketCharEl.classList.toggle('invincible', Date.now() < state.invincibleUntil);
+  if(expressionTimeoutId){ clearTimeout(expressionTimeoutId); expressionTimeoutId = null; }
+  if(expr !== 'neutral'){
+    expressionTimeoutId = setTimeout(function(){
+      currentExpression = 'neutral';
+      if(state.running){
+        basketCharEl.innerHTML = charBodySVG(state.character, 'neutral');
+        basketCharEl.classList.toggle('invincible', Date.now() < state.invincibleUntil);
+      }
+      expressionTimeoutId = null;
+    }, 550);
+  }
+}
+
+function pointerXFromEvent(e){
+  var rect = gameArea.getBoundingClientRect();
+  var clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+  return clientX - rect.left;
+}
+gameArea.addEventListener('pointerdown', function(e){
+  if(state.paused) return;
+  state.pointerActive = true;
+  state.basketTargetX = pointerXFromEvent(e);
+  controlHint.style.opacity = '0';
+});
+gameArea.addEventListener('pointermove', function(e){
+  if(state.paused) return;
+  if(state.pointerActive){
+    state.basketTargetX = pointerXFromEvent(e);
+  }
+});
+window.addEventListener('pointerup', function(){ state.pointerActive = false; });
+
+document.addEventListener('keydown', function(e){
+  if(state.paused) return;
+  if(e.key==='ArrowLeft' || e.key==='a' || e.key==='A'){ state.keys.left = true; e.preventDefault(); }
+  if(e.key==='ArrowRight' || e.key==='d' || e.key==='D'){ state.keys.right = true; e.preventDefault(); }
+});
+document.addEventListener('keyup', function(e){
+  if(e.key==='ArrowLeft' || e.key==='a' || e.key==='A') state.keys.left = false;
+  if(e.key==='ArrowRight' || e.key==='d' || e.key==='D') state.keys.right = false;
+});
+
+/* ========================================================
+   PAUSE / SETTINGS
+======================================================== */
+function pauseGame(){
+  if(!state.running || state.paused) return;
+  state.paused = true;
+  state.keys = {left:false,right:false};
+  state.pointerActive = false;
+  stopBgm();
+  pauseLayer.classList.remove('hidden');
+}
+function resumeGame(){
+  if(!state.running || !state.paused) return;
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  state.paused = false;
+  state.lastTs = 0;
+  pauseLayer.classList.add('hidden');
+  startBgm();
+  requestAnimationFrame(gameLoop);
+}
+$('btn-pause').addEventListener('click', function(){
+  sfxClick();
+  pauseGame();
+});
+$('btn-resume').addEventListener('click', function(){
+  sfxClick();
+  resumeGame();
+});
+$('btn-quit').addEventListener('click', function(){
+  sfxClick();
+  state.running = false;
+  state.paused = false;
+  stopBgm();
+  pauseLayer.classList.add('hidden');
+  document.querySelectorAll('.falling-item, .falling-wrap').forEach(function(el){ el.remove(); });
+  showScreen('start');
+});
+
+var rangeBgm = $('range-bgm');
+var rangeSfx = $('range-sfx');
+var btnBgmMute = $('btn-bgm-mute');
+var btnSfxMute = $('btn-sfx-mute');
+
+rangeBgm.addEventListener('input', function(){
+  audioSettings.bgmVolume = rangeBgm.value/100;
+  if(audioSettings.bgmVolume>0) audioSettings.bgmMuted = false;
+  btnBgmMute.textContent = (audioSettings.bgmMuted || audioSettings.bgmVolume===0) ? '🔇' : '🔊';
+  applyAudioSettings();
+});
+rangeSfx.addEventListener('input', function(){
+  audioSettings.sfxVolume = rangeSfx.value/100;
+  if(audioSettings.sfxVolume>0) audioSettings.sfxMuted = false;
+  btnSfxMute.textContent = (audioSettings.sfxMuted || audioSettings.sfxVolume===0) ? '🔇' : '🔊';
+  applyAudioSettings();
+});
+btnBgmMute.addEventListener('click', function(){
+  audioSettings.bgmMuted = !audioSettings.bgmMuted;
+  btnBgmMute.textContent = audioSettings.bgmMuted ? '🔇' : '🔊';
+  applyAudioSettings();
+});
+btnSfxMute.addEventListener('click', function(){
+  audioSettings.sfxMuted = !audioSettings.sfxMuted;
+  btnSfxMute.textContent = audioSettings.sfxMuted ? '🔇' : '🔊';
+  applyAudioSettings();
+  if(!audioSettings.sfxMuted) sfxClick();
+});
+
+/* ========================================================
+   START GAME
+======================================================== */
+function startGame(){
+  state.score = 0;
+  state.timeLeft = GAME_DURATION;
+  state.elapsed = 0;
+  state.items = [];
+  state.invincibleUntil = 0;
+  state.spawnAcc = 0;
+  state.nextSpawnIn = 500;
+  state.lastTs = 0;
+  state.pointerActive = false;
+  state.paused = false;
+  state.keys = {left:false,right:false};
+  state.lastNegativeCatchAt = 0;
+  state.caughtPositiveSinceNegative = false;
+  state.feverActive = false;
+  state.feverUntil = 0;
+  state.lastFlameParticleAt = 0;
+  state.stunnedUntil = 0;
+
+  if(expressionTimeoutId){ clearTimeout(expressionTimeoutId); expressionTimeoutId = null; }
+  currentExpression = 'neutral';
+  hudFever.classList.add('hidden');
+  gameArea.classList.remove('fever');
+
+  document.querySelectorAll('.falling-item, .falling-wrap').forEach(function(el){ el.remove(); });
+  pauseLayer.classList.add('hidden');
+
+  // IMPORTANT: show the game screen FIRST, then measure.
+  // getBoundingClientRect() on a display:none element returns all zeros,
+  // which previously froze the basket and made items get "caught" before
+  // ever becoming visible. Showing the screen forces layout, so the
+  // measurement below is accurate.
+  showScreen('game');
+
+  var rect = gameArea.getBoundingClientRect();
+  state.areaW = rect.width;
+  state.areaH = rect.height;
+  state.basketX = state.areaW/2;
+  state.basketTargetX = state.areaW/2;
+
+  if(state.areaW < 10 || state.areaH < 10){
+    // extremely defensive fallback for odd rendering timing
+    requestAnimationFrame(function(){
+      var r2 = gameArea.getBoundingClientRect();
+      if(r2.width>10) state.areaW = r2.width;
+      if(r2.height>10) state.areaH = r2.height;
+      state.basketX = state.areaW/2;
+      state.basketTargetX = state.areaW/2;
+    });
+  }
+
+  basketCharEl.innerHTML = charBodySVG(state.character);
+
+  // schedule invincible spawns: 3 or 4 across the round
+  var count = Math.random()<0.5 ? 3 : 4;
+  var seg = GAME_DURATION / count;
+  var queue = [];
+  for(var i=0;i<count;i++){
+    var t = i*seg + 2 + Math.random()*Math.max(seg-4, 1);
+    queue.push(t);
+  }
+  state.invincibleQueue = queue;
+
+  hudScore.textContent = '0점';
+  hudTimer.textContent = '⏱ '+GAME_DURATION;
+  hudTimer.classList.remove('urgent');
+  hudInvincible.innerHTML = '&nbsp;';
+  controlHint.textContent = '화면을 좌우로 드래그하거나 방향키로 이동하세요';
+  controlHint.style.opacity = '1';
+
+  state.running = true;
+  initAudio();
+  resumeAudioCtx();
+  startBgm();
+  requestAnimationFrame(gameLoop);
+}
+
+/* ========================================================
+   SPAWN LOGIC
+======================================================== */
+function pickWeightedItem(){
+  var r = Math.random()*ITEM_TOTAL_WEIGHT;
+  for(var i=0;i<ITEM_TYPES.length;i++){
+    if(r < ITEM_TYPES[i].weight) return ITEM_TYPES[i];
+    r -= ITEM_TYPES[i].weight;
+  }
+  return ITEM_TYPES[ITEM_TYPES.length-1];
+}
+
+function speedMultiplier(){
+  var progress = state.elapsed / GAME_DURATION;
+  return 1 + 0.6*Math.min(progress,1);
+}
+function intervalMultiplier(){
+  var progress = state.elapsed / GAME_DURATION;
+  return 1 - 0.45*Math.min(progress,1);
+}
+
+function spawnRegularItem(){
+  var def = pickWeightedItem();
+  var isCompetitor = !!def.stripe;
+  var isRegPaper = def.id==='reg';
+  var w = isCompetitor ? 66 : (isRegPaper ? 62 : 72);
+  var h = isCompetitor ? 78 : (isRegPaper ? 70 : 81);
+  var x = Math.random()*(state.areaW - w);
+
+  var el = document.createElement('div');
+  var extraCls = def.cls+(def.stripe ? ' '+def.stripe : '')+(def.id==='complaint' ? ' complaint-paper' : '')+(isRegPaper ? ' paper-stack' : '');
+  el.className = 'falling-item '+extraCls;
+  var icon = ICON_SVGS[def.id] ? '<div class="fi-icon">'+ICON_SVGS[def.id]+'</div>' : '';
+  el.innerHTML = icon +
+    def.label.map(function(l){return '<div class="fi-label">'+l+'</div>';}).join('') +
+    '<div class="pt-badge">'+(def.score>0?'+':'')+def.score+'</div>';
+
+  var mover; // the element whose position actually gets animated as it falls
+
+  if(isRegPaper){
+    // wrapper holds a "back sheet" DOM sibling that's appended BEFORE the
+    // main card, so it's guaranteed to paint underneath it (no z-index
+    // trick can make a pseudo-element render behind its own element's
+    // background - it has to be an earlier sibling instead)
+    var wrap = document.createElement('div');
+    wrap.className = 'falling-wrap';
+    wrap.style.left = x+'px';
+    wrap.style.top = (-h)+'px';
+    var back = document.createElement('div');
+    back.className = 'paper-back';
+    wrap.appendChild(back);
+    wrap.appendChild(el);
+    gameArea.appendChild(wrap);
+    mover = wrap;
+  } else {
+    el.style.left = x+'px';
+    el.style.top = (-h)+'px';
+    gameArea.appendChild(el);
+    mover = el;
+  }
+
+  state.items.push({ el:mover, x:x, y:-h, w:w, h:h, speed:def.speed, score:def.score, kind:'item', id:def.id });
+}
+
+function spawnInvincibleItem(){
+  var w = 84;
+  var x = Math.random()*(state.areaW - w);
+  var el = document.createElement('div');
+  el.className = 'falling-item invincible-item';
+  el.innerHTML = '<div class="ii-inner">'+ICON_SVGS.shield+'</div>' +
+    '<div class="ii-label">지점장</div><div class="ii-label">방패</div>';
+  el.style.left = x+'px';
+  el.style.top = '-98px';
+  gameArea.appendChild(el);
+  state.items.push({ el:el, x:x, y:-98, w:w, h:98, speed:190, score:0, kind:'shield' });
+}
+
+/* ========================================================
+   MAIN LOOP
+======================================================== */
+function gameLoop(ts){
+  if(!state.running) return;
+  if(state.paused) return;
+  if(!state.lastTs) state.lastTs = ts;
+  var dt = Math.min((ts - state.lastTs)/1000, 0.05);
+  state.lastTs = ts;
+  state.elapsed += dt;
+
+  // timer
+  var newTimeLeft = Math.max(0, GAME_DURATION - state.elapsed);
+  var displaySec = Math.ceil(newTimeLeft);
+  if(displaySec !== state.timeLeft){
+    state.timeLeft = displaySec;
+    hudTimer.textContent = '⏱ '+state.timeLeft;
+    if(state.timeLeft<=10) hudTimer.classList.add('urgent'); else hudTimer.classList.remove('urgent');
+  }
+  if(newTimeLeft<=0){
+    endGame();
+    return;
+  }
+
+  // invincible scheduled spawns
+  while(state.invincibleQueue.length && state.elapsed >= state.invincibleQueue[0]){
+    state.invincibleQueue.shift();
+    spawnInvincibleItem();
+  }
+
+  // regular spawn timing
+  state.spawnAcc += dt*1000;
+  if(state.spawnAcc >= state.nextSpawnIn){
+    state.spawnAcc = 0;
+    var base = 650 + Math.random()*300;
+    state.nextSpawnIn = Math.max(220, base*intervalMultiplier());
+    spawnRegularItem();
+  }
+
+  // basket movement
+  var speedMul = speedMultiplier();
+  var stunnedNow = Date.now() < state.stunnedUntil;
+  if(!stunnedNow){
+    if(state.pointerActive){
+      state.basketX += (state.basketTargetX - state.basketX) * Math.min(dt*12, 1);
+    }
+    var KEY_SPEED = 420;
+    if(state.keys.left) state.basketX -= KEY_SPEED*dt;
+    if(state.keys.right) state.basketX += KEY_SPEED*dt;
+  }
+  var half = 42;
+  state.basketX = Math.max(half, Math.min(state.areaW-half, state.basketX));
+  basketWrap.style.left = state.basketX+'px';
+
+  var invincibleNow = Date.now() < state.invincibleUntil;
+  basketCharEl.classList.toggle('invincible', invincibleNow);
+  basketCharEl.classList.toggle('stunned', stunnedNow);
+  if(invincibleNow){
+    var remain = Math.max(0, (state.invincibleUntil - Date.now())/1000);
+    hudInvincible.textContent = '🛡 무적 '+remain.toFixed(1)+'초';
+    hudInvincible.classList.remove('warn-text');
+  } else if(stunnedNow){
+    var remainStun = Math.max(0, (state.stunnedUntil - Date.now())/1000);
+    hudInvincible.textContent = '😵 '+remainStun.toFixed(1)+'초간 이동 불가!';
+    hudInvincible.classList.add('warn-text');
+  } else {
+    hudInvincible.innerHTML = '&nbsp;';
+    hudInvincible.classList.remove('warn-text');
+  }
+
+  // FEVER TIME: 15 clean seconds (no negative catches) with at least one
+  // positive/shield catch in that window triggers 8s of double positive score
+  if(!state.feverActive && state.caughtPositiveSinceNegative && (state.elapsed - state.lastNegativeCatchAt >= 15)){
+    activateFever();
+  }
+  if(state.feverActive){
+    if(state.elapsed >= state.feverUntil){
+      state.feverActive = false;
+      hudFever.classList.add('hidden');
+      gameArea.classList.remove('fever');
+    } else {
+      hudFever.classList.remove('hidden');
+      gameArea.classList.add('fever');
+      if(state.elapsed - state.lastFlameParticleAt > 0.35){
+        state.lastFlameParticleAt = state.elapsed;
+        spawnFlameParticle();
+      }
+    }
+  }
+
+  // basket collision box (aligned with the bag held in front of the character)
+  var basketRect = {
+    left: state.basketX - 28,
+    right: state.basketX + 28,
+    top: state.areaH - 50,
+    bottom: state.areaH - 16
+  };
+
+  for(var i=state.items.length-1; i>=0; i--){
+    var it = state.items[i];
+    it.y += it.speed*speedMul*dt;
+    it.el.style.top = it.y+'px';
+
+    var itLeft = it.x, itRight = it.x+it.w, itTop = it.y, itBottom = it.y+it.h;
+    var overlap = itRight>basketRect.left && itLeft<basketRect.right && itBottom>basketRect.top && itTop<basketRect.bottom;
+
+    if(overlap){
+      catchItem(it, invincibleNow);
+      state.items.splice(i,1);
+      continue;
+    }
+    if(it.y > state.areaH+10){
+      it.el.remove();
+      state.items.splice(i,1);
+    }
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+/* ========================================================
+   CATCH HANDLING
+======================================================== */
+function spawnScorePop(text, cls, x, y){
+  var pop = document.createElement('div');
+  pop.className = 'score-pop '+cls;
+  pop.textContent = text;
+  pop.style.left = x+'px';
+  pop.style.top = y+'px';
+  gameArea.appendChild(pop);
+  setTimeout(function(){ pop.remove(); }, 820);
+}
+
+function spawnFlameParticle(){
+  var p = document.createElement('div');
+  p.className = 'flame-particle';
+  p.textContent = Math.random()<0.5 ? '🔥' : '✨';
+  p.style.left = (8 + Math.random()*(state.areaW-16))+'px';
+  gameArea.appendChild(p);
+  setTimeout(function(){ p.remove(); }, 1150);
+}
+
+function activateFever(){
+  state.feverActive = true;
+  state.feverUntil = state.elapsed + 8;
+  // restart the clean-streak requirement so the next fever needs a fresh 15s
+  state.lastNegativeCatchAt = state.elapsed;
+  state.caughtPositiveSinceNegative = false;
+  sfxFever();
+  hudFever.classList.remove('hidden');
+}
+
+function catchItem(it, invincibleNow){
+  it.el.remove();
+  var popX = it.x + it.w/2;
+  var popY = state.areaH - 70;
+
+  if(it.kind==='shield'){
+    state.invincibleUntil = Date.now() + 5000;
+    state.caughtPositiveSinceNegative = true;
+    spawnScorePop('방패 획득!', 'shield', popX, popY);
+    flashOverlay.classList.remove('gold');
+    void flashOverlay.offsetWidth;
+    flashOverlay.classList.add('gold');
+    sfxShield();
+    setExpression('happy');
+    return;
+  }
+
+  var applied = it.score;
+  if(invincibleNow && it.score<0){
+    spawnScorePop('방어!', 'shield', popX, popY);
+    applied = 0;
+    sfxCatchPositive();
+    setExpression('happy');
+  } else if(it.score<0){
+    spawnScorePop(''+it.score, 'neg', popX, popY);
+    flashOverlay.classList.remove('danger');
+    void flashOverlay.offsetWidth;
+    flashOverlay.classList.add('danger');
+    sfxCatchNegative();
+    setExpression('sad');
+    state.lastNegativeCatchAt = state.elapsed;
+    state.caughtPositiveSinceNegative = false;
+    if(it.id==='complaint'){
+      state.stunnedUntil = Date.now() + 2000;
+      sfxStun();
+    }
+  } else {
+    var feverBonus = state.feverActive;
+    if(feverBonus) applied = it.score * 2;
+    spawnScorePop('+'+applied+(feverBonus?'!':''), 'pos', popX, popY);
+    sfxCatchPositive();
+    setExpression('happy');
+    state.caughtPositiveSinceNegative = true;
+  }
+  state.score += applied;
+  hudScore.textContent = state.score+'점';
+}
+
+/* ========================================================
+   END GAME / RESULT (no login required - no shared storage)
+======================================================== */
+var sessionBestScore = 0;
+
+function scoreTierMessage(score){
+  if(score >= 1500) return '🏆 압도적인 실적! 오늘의 계약왕입니다';
+  if(score >= 800) return '🥈 훌륭해요! 시상 유력 점수입니다';
+  if(score >= 300) return '📄 안정적인 실적이에요';
+  return '💪 다음 판엔 더 높은 점수에 도전해보세요';
+}
+
+function endGame(){
+  state.running = false;
+  state.paused = false;
+  stopBgm();
+  pauseLayer.classList.add('hidden');
+  document.querySelectorAll('.falling-item, .falling-wrap').forEach(function(el){ el.remove(); });
+  showScreen('result');
+
+  var isNewBest = state.score > sessionBestScore;
+  if(isNewBest) sessionBestScore = state.score;
+
+  $('result-score').textContent = state.score+'점';
+  $('result-tier').textContent = scoreTierMessage(state.score);
+  $('result-rank').textContent = isNewBest
+    ? '이번 접속 중 자기 최고 기록! 🎉'
+    : '이번 접속 중 최고 기록: '+sessionBestScore+'점';
+
+  var c = CHARACTERS.filter(function(x){return x.id===state.character;})[0];
+  $('result-char').innerHTML = '<div class="mini-badge">'+charSVG(c.id)+'</div><div>'+c.name+' · '+escapeHtml(state.name)+'</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+
+function buildShareText(){
+  var c = CHARACTERS.filter(function(x){return x.id===state.character;})[0];
+  return '🏢 DB손해보험 전략사업부문 광화문사업단\n' +
+    '📄 FC 계약 받아 소득 올리기\n\n' +
+    (state.name || '플레이어') + ' (' + (c?c.name:'') + ')\n' +
+    '최종 점수: ' + state.score + '점\n\n' +
+    '나도 도전하기 👉 이 링크를 눌러보세요!';
+}
+
+async function shareResult(){
+  var text = buildShareText();
+  var url = (typeof location!=='undefined' && location.href) ? location.href : '';
+  if(navigator.share){
+    try{
+      await navigator.share({ title:'위너스지점 청약서 받기 결과', text:text, url:url });
+      return;
+    }catch(e){ /* user cancelled or share failed - fall through to clipboard */ }
+  }
+  try{
+    await navigator.clipboard.writeText(text + (url ? ('\n'+url) : ''));
+    var btn = $('btn-share');
+    var original = btn.textContent;
+    btn.textContent = '✅ 복사 완료! 카톡방에 붙여넣어 주세요';
+    setTimeout(function(){ btn.textContent = original; }, 2200);
+  }catch(e){
+    alert(text);
+  }
+}
+
+
+/* ========================================================
+   RESULT SCREEN BUTTONS
+======================================================== */
+$('btn-share').addEventListener('click', function(){
+  sfxClick();
+  shareResult();
+});
+$('btn-retry').addEventListener('click', function(){
+  sfxClick();
+  showScreen('start');
+});
+
+})();
+</script>
+</body>
+</html>
