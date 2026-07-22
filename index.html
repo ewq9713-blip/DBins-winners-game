@@ -511,8 +511,8 @@ body{
 .falling-item.stripe-red .pt-badge,
 .falling-item.stripe-yellow .pt-badge,
 .falling-item.stripe-blue .pt-badge{
-  background:rgba(0,0,0,0.32);
-  border:1.5px solid rgba(255,255,255,0.65);
+  background:var(--danger);
+  border:1.5px solid rgba(255,255,255,0.8);
   font-size:10.5px;
 }
 
@@ -904,6 +904,7 @@ body{
   <div class="result-char" id="result-char"></div>
 
   <button class="primary-btn" id="btn-share">📤 카톡으로 결과 공유하기</button>
+  <button class="ghost-btn hidden" id="btn-live-rank-result">🔥 실시간 순위 보기</button>
   <button class="ghost-btn" id="btn-retry">다시 도전하기</button>
 </section>
 
@@ -974,8 +975,10 @@ function initFirebase(){
     firebase.initializeApp(FIREBASE_CONFIG);
     fbDb = firebase.database();
     fbEnabled = true;
-    var btn = document.getElementById('btn-live-rank');
-    if(btn) btn.classList.remove('hidden');
+    ['btn-live-rank','btn-live-rank-result'].forEach(function(id){
+      var btn = document.getElementById(id);
+      if(btn) btn.classList.remove('hidden');
+    });
   }catch(e){ fbEnabled = false; }
 }
 initFirebase();
@@ -1631,6 +1634,7 @@ $('btn-close-legend').addEventListener('click', function(){ $('legend-modal').cl
 $('legend-modal').addEventListener('click', function(e){ if(e.target.id==='legend-modal') $('legend-modal').classList.remove('open'); });
 
 $('btn-live-rank').addEventListener('click', function(){ sfxClick(); openLiveLeaderboard(); });
+$('btn-live-rank-result').addEventListener('click', function(){ sfxClick(); openLiveLeaderboard(); });
 $('btn-close-live').addEventListener('click', function(){ sfxClick(); closeLiveLeaderboard(); });
 $('live-modal').addEventListener('click', function(e){ if(e.target.id==='live-modal') closeLiveLeaderboard(); });
 
@@ -2038,12 +2042,14 @@ function gameLoop(ts){
     }
   }
 
-  // basket collision box (aligned with the bag held in front of the character)
+  // basket collision box - recalculated to match the current chibi-sized
+  // sprite (this had been left over from an earlier, much taller character
+  // body and no longer lined up with where the character visually is)
   var basketRect = {
-    left: state.basketX - 28,
-    right: state.basketX + 28,
-    top: state.areaH - 50,
-    bottom: state.areaH - 16
+    left: state.basketX - 26,
+    right: state.basketX + 26,
+    top: state.areaH - 46,
+    bottom: state.areaH - 20
   };
 
   for(var i=state.items.length-1; i>=0; i--){
